@@ -25,7 +25,7 @@ jobs:
           } else { $base = "." }
           $pasta = (Get-ChildItem -Path $base -Recurse -Filter package.json -Depth 3 | Where-Object { $_.FullName -notmatch 'node_modules' } | Select-Object -First 1).DirectoryName
           if (-not $pasta) { throw "Nao encontrei o programa. Envie o arquivo ProjecaoAssembleia-vX.zip para o repositorio." }
-          $faltando = @('main.js','preload.js','lib\texto.js','lib\biblia.js','lib\igreja.js','lib\nuvem.js','lib\letrasOnline.js','src\index.html','src\renderer.js','src\projetor.html','src\movel.html','src\fundo.js') | Where-Object { -not (Test-Path (Join-Path $pasta $_)) }
+          $faltando = @('main.js','preload.js','lib\texto.js','lib\biblia.js','lib\igreja.js','lib\nuvem.js','lib\letrasOnline.js','src\index.html','src\renderer.js','src\erros.js','src\projetor.html','src\movel.html','src\fundo.js') | Where-Object { -not (Test-Path (Join-Path $pasta $_)) }
           if ($faltando) { throw ("Faltam arquivos do programa: " + ($faltando -join ', ') + ". Envie o arquivo .zip do programa inteiro para o repositorio.") }
           Write-Host "Programa completo em $pasta"
           "PASTA=$pasta" | Out-File -FilePath $env:GITHUB_ENV -Append -Encoding utf8
