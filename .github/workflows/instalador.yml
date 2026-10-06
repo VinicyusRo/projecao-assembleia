@@ -1,0 +1,27 @@
+name: Gerar instalador
+on:
+  workflow_dispatch:
+  push:
+    branches: [main, master]
+jobs:
+  windows:
+    runs-on: windows-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 20
+      - name: Montar o instalador
+        shell: pwsh
+        run: |
+          $pasta = (Get-ChildItem -Path . -Recurse -Filter package.json -Depth 2 | Where-Object { $_.FullName -notmatch 'node_modules' } | Select-Object -First 1).DirectoryName
+          if (-not $pasta) { throw "Nao encontrei o package.json. Envie todos os arquivos do programa para o repositorio." }
+          Set-Location $pasta
+          npm install --no-audit --no-fund
+          npx electron-builder --win --x64 --publish never
+          New-Item -ItemType Directory -Force -Path "$env:GITHUB_WORKSPACE/saida" | Out-Null
+          Copy-Item dist/*.exe "$env:GITHUB_WORKSPACE/saida/"
+      - uses: actions/upload-artifact@v4
+        with:
+          name: Instalador-Projecao-Assembleia
+          path: saida/*.exe
