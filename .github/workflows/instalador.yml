@@ -3,6 +3,8 @@ on:
   workflow_dispatch:
   push:
     branches: [main, master]
+permissions:
+  contents: write
 jobs:
   windows:
     runs-on: windows-latest
@@ -25,7 +27,7 @@ jobs:
           } else { $base = "." }
           $pasta = (Get-ChildItem -Path $base -Recurse -Filter package.json -Depth 3 | Where-Object { $_.FullName -notmatch 'node_modules' } | Select-Object -First 1).DirectoryName
           if (-not $pasta) { throw "Nao encontrei o programa. Envie o arquivo ProjecaoAssembleia-vX.zip para o repositorio." }
-          $faltando = @('main.js','preload.js','lib\texto.js','lib\biblia.js','lib\igreja.js','lib\nuvem.js','lib\letrasOnline.js','src\index.html','src\renderer.js','src\erros.js','src\projetor.html','src\movel.html','src\fundo.js') | Where-Object { -not (Test-Path (Join-Path $pasta $_)) }
+          $faltando = @('main.js','preload.js','lib\texto.js','lib\biblia.js','lib\igreja.js','lib\nuvem.js','lib\letrasOnline.js','lib\atualizador.js','src\index.html','src\renderer.js','src\erros.js','src\projetor.html','src\movel.html','src\fundo.js') | Where-Object { -not (Test-Path (Join-Path $pasta $_)) }
           if ($faltando) { throw ("Faltam arquivos do programa: " + ($faltando -join ', ') + ". Envie o arquivo .zip do programa inteiro para o repositorio.") }
           Write-Host "Programa completo em $pasta"
           "PASTA=$pasta" | Out-File -FilePath $env:GITHUB_ENV -Append -Encoding utf8
@@ -52,6 +54,14 @@ jobs:
               json.dump(d, open(pj, 'w', encoding='utf-8'), ensure_ascii=False, indent=2)
           print('Arquivos em assets:', os.listdir(a))
           "@
+      - name: Numerar a versao
+        shell: pwsh
+        run: |
+          if (Test-Path "$env:PASTA\ferramentas\preparar-versao.js") { node "$env:PASTA\ferramentas\preparar-versao.js" "$env:PASTA" }
+          else { "VERSAO=sem-numero" | Out-File -FilePath $env:GITHUB_ENV -Append -Encoding utf8 }
+          if ("${{ github.event.repository.private }}" -eq "true") {
+            Write-Host "::warning::O repositorio esta PRIVADO: o programa nao consegue se atualizar sozinho. Em Settings > General > Danger Zone, clique em 'Change visibility' e deixe Public."
+          }
       - name: Montar o instalador
         shell: pwsh
         run: |
@@ -64,3 +74,13 @@ jobs:
         with:
           name: Instalador-Projecao-Assembleia
           path: saida/*.exe
+      - name: Publicar a versao (o programa instalado se atualiza sozinho)
+        if: env.VERSAO != 'sem-numero'
+        uses: softprops/action-gh-release@v2
+        with:
+          tag_name: v${{ env.VERSAO }}
+          name: Projeção Assembleia ${{ env.VERSAO }}
+          body: Nova versão do Projeção Assembleia. Os computadores com o programa instalado recebem esta versão sozinhos (botão "Atualizar" no topo).
+          files: saida/*.exe
+          make_latest: true
+ 
