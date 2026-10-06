@@ -10,6 +10,8 @@ jobs:
     runs-on: windows-latest
     steps:
       - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
       - uses: actions/setup-node@v4
         with:
           node-version: 20
@@ -19,7 +21,12 @@ jobs:
       - name: Encontrar o programa (de preferencia o .zip enviado)
         shell: pwsh
         run: |
-          $zip = Get-ChildItem -Path . -Recurse -Depth 2 -Filter "Projecao*.zip" | Sort-Object Name -Descending | Select-Object -First 1
+          # usa o .zip enviado POR ÚLTIMO (data do envio no GitHub), não o de nome "maior"
+          $zips = @(Get-ChildItem -Path . -Recurse -Depth 2 -Filter "Projecao*.zip")
+          foreach ($z in $zips) { $z | Add-Member -NotePropertyName Envio -NotePropertyValue ([long](git log -1 --format=%ct -- "$($z.FullName)")) }
+          $zips | Sort-Object Envio -Descending | ForEach-Object { Write-Host ("  encontrado: {0}  (enviado em {1})" -f $_.Name, [DateTimeOffset]::FromUnixTimeSeconds($_.Envio).ToLocalTime()) }
+          $zip = $zips | Sort-Object Envio -Descending | Select-Object -First 1
+          if ($zips.Count -gt 1) { Write-Host "::warning::Ha $($zips.Count) arquivos .zip do programa no repositorio. Usei o enviado por ultimo: $($zip.Name). Pode apagar os antigos." }
           if ($zip) {
             Write-Host "Usando o arquivo $($zip.Name)"
             Expand-Archive -Path $zip.FullName -DestinationPath "$env:RUNNER_TEMP\programa" -Force
