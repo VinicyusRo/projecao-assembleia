@@ -1,0 +1,41 @@
+{
+  "name": "projecao-assembleia",
+  "productName": "Projeção Assembleia",
+  "version": "1.1.0",
+  "description": "Projeção Assembleia - Assembleia de Deus Ministério Madureira",
+  "author": "Assembleia de Deus - Campo do Jd. Comercial",
+  "main": "main.js",
+  "scripts": {
+    "start": "electron .",
+    "instalador": "electron-builder --win --x64 --publish never"
+  },
+  "devDependencies": {
+    "electron": "^33.0.0",
+    "electron-builder": "^25.1.8"
+  },
+  "build": {
+    "appId": "br.org.assembleia.projecao",
+    "productName": "Projeção Assembleia",
+    "copyright": "Assembleia de Deus - Campo do Jd. Comercial",
+    "directories": { "output": "dist" },
+    "files": ["main.js", "preload.js", "lib/**", "src/**", "assets/**", "package.json"],
+    "win": {
+      "target": [{ "target": "nsis", "arch": ["x64"] }],
+      "icon": "assets/icone.ico",
+      "artifactName": "Projecao-Assembleia-Setup-${version}.${ext}"
+    },
+    "nsis": {
+      "oneClick": false,
+      "perMachine": false,
+      "allowToChangeInstallationDirectory": true,
+      "createDesktopShortcut": "always",
+      "createStartMenuShortcut": true,
+      "shortcutName": "Projeção Assembleia",
+      "uninstallDisplayName": "Projeção Assembleia",
+      "installerIcon": "assets/icone.ico",
+      "uninstallerIcon": "assets/icone.ico",
+      "runAfterFinish": true,
+      "language": "1046"
+    }
+  }
+}

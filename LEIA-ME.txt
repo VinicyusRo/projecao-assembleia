@@ -1,0 +1,105 @@
+PROJEÇÃO ASSEMBLEIA - versão 1.1
+=================================
+Programa independente: funciona sem internet e sem site.
+
+INSTALAR (Windows)
+  Jeito recomendado: instalador "Projecao-Assembleia-Setup.exe" (não precisa de Node.js).
+  Veja GUIA-INSTALADOR.txt para gerar o instalador de graça pelo GitHub.
+  Jeito antigo (sem instalador): instale o Node.js e dê dois cliques em INICIAR.bat.
+
+MÍDIA ONLINE (avisos e banners pela internet, publicados de casa): veja GUIA-MIDIA-ONLINE.txt.
+
+ONDE FICAM OS DADOS:  Documentos\ProjecaoADMadureira
+  musicas.json (letras e hinos) · avisos.json · membros.json · visitantes.json · culto.json · config.json
+  biblias\  (versões importadas) · imagens\ (banners, fundos, imagens dos avisos)
+  BACKUP (botão "Backup" no topo):
+   - automático todo dia em Documentos\ProjecaoADMadureira-Backups (guarda os 10 últimos);
+   - "Fazer backup agora" salva no pendrive ou numa pasta do OneDrive/Google Drive;
+   - "Restaurar" volta um backup (os dados atuais são guardados antes, por segurança).
+
+ABAS DA ESQUERDA
+- Letras ... músicas. Importar .txt (o nome do arquivo vira o título).
+             "Pesquisar letra na internet" (Ctrl+I): digite o nome ou um trecho, escolha na lista,
+             confira a prévia, escolha a formatação (estrofes, 2, 4 ou 6 linhas por slide) e
+             "Criar Música" (abre o editor para conferir/usar o Corretor e salvar).
+             Fontes: LRCLIB (aberta, já funciona) e Vagalume (API oficial, muito mais letras
+             gospel em português: clique em "Ligar Vagalume" e cole a chave gratuita do site).
+             Letras têm direitos autorais: use conforme a lei e a licença da igreja.
+- Hinos .... hinário numerado (ex.: Harpa Cristã). Busque pelo número: digite 15 e Enter.
+             Importar: arquivos .txt com o número no nome, ex.: "015 - Chuvas de Graça.txt".
+- Bíblia ... "+ Versão" importa um arquivo .json ou .xml (Zefania / OSIS).
+             Digite a referência e Enter: Jo 3:16 · Sl 23 · 1Co 13:4-7 · Gn 1
+             Cada versículo vira um slide, com a referência embaixo.
+             Use uma versão que a igreja tenha direito de usar (ARC, ACF, NVI etc. têm direitos autorais).
+- Avisos ... avisos editáveis em 4 passos: conteúdo, fundo (tema, cor ou imagem sua + escurecer),
+             estilo do texto (cores, tamanho, posição) e datas para aparecer no "Projetar avisos".
+             "Texto rápido": texto livre que vira slides na hora.
+- Imagens .. banners prontos (ex.: feitos no Canva, formato 16:9, 1920x1080).
+- Igreja ... aniversários dos últimos 7 dias e visitantes de hoje.
+             "Gerenciar membros": adicionar, editar (com FOTO do membro ou do casal), excluir
+             ou importar a lista (.csv/.txt, uma pessoa por linha):
+                 Maria da Silva; 15/03
+                 João e Ana; 20/06; casamento
+             "+ Visitante": registra nome, de onde vem, quem convidou e se é a 1ª visita.
+
+PROJETAR AVISOS (coluna do telão)
+  Passa sozinho, a cada 8 segundos (ajustável): aniversariantes da semana, visitantes de hoje,
+  avisos (que estiverem dentro das datas) e banners. Os aniversariantes aparecem em cartões
+  do mesmo tamanho (até 4 por tela) com a foto, e a caixa "A SEGUIR • EM 06S" mostra o próximo. Escolha o que entra marcando as caixinhas.
+  Pausar, Parar, e as setas / celular avançam ou voltam. Projetar qualquer outra coisa para o rotativo.
+
+FAIXA DE SLIDES (embaixo, estilo Holyrics): miniaturas de todos os slides da letra, hino, versículo
+  ou dos avisos automáticos. O que está no telão fica com borda vermelha. Clique para projetar;
+  as setas ◀ ▶ das pontas voltam e avançam.
+EDITAR HINO OU LETRA: passe o mouse na lista e clique no lápis, ou abra e aperte F2.
+
+REGRA DOS SLIDES:  linha em branco = novo slide · quebra simples = mesma tela.
+CORRETOR (no editor de letras): pontuação final, espaços, maiúsculas, cifras; mostra antes/depois e tem Desfazer.
+
+BANNER FEITO EM CASA (sem site)
+Em "Imagens" > "usar outra pasta", escolha uma pasta do OneDrive ou Google Drive
+instalado no computador da igreja. De casa, salve o banner do Canva nessa mesma pasta
+pelo celular ou PC: ele aparece sozinho no programa assim que a nuvem sincronizar.
+
+PASSAR OS SLIDES
+  ↓ → Espaço PageDown   próximo       ↑ ← PageUp   anterior     1 a 9  vai ao slide
+  Enter  projeta o selecionado        Esc  limpar texto           B ou .  tela preta
+  L  logo                             Ctrl+F letras · Ctrl+H hinos · Ctrl+B Bíblia
+  Passador de slides (clicker) USB funciona direto (usa PageUp/PageDown).
+
+APP NO CELULAR (Android e iPhone) - botão "App celular" no topo
+  O computador da igreja vira o "servidor": o celular precisa estar no MESMO Wi-Fi.
+  Abra o endereço mostrado no Chrome (Android) ou Safari (iPhone) e toque na sua função
+  (Recepção, Leitura, Mídia ou Controle). Não precisa de PIN; o celular lembra a função escolhida
+  e o botão "Trocar" volta para a escolha. Se quiser mais segurança (Wi-Fi aberto ao público),
+  marque "Pedir PIN no celular" na janela "App celular" do computador.
+  Para virar ícone de app "Projeção Assembleia" (com a logo da igreja):
+    iPhone (Safari): botão Compartilhar > "Adicionar à Tela de Início".
+    Android (Chrome): menu ⋮ > "Adicionar à tela inicial" (ou "Instalar app").
+  Funções:
+   - RECEPÇÃO: "Registrar visitante": nome ou família, quantas pessoas, convidado por alguém
+               (sugere os membros enquanto digita) ou de outra igreja, 1ª visita. Tudo opcional.
+               Toque num nome da lista para editar; × apaga. Os visitantes aparecem só no dia
+               em que foram registrados (no dia seguinte a lista começa vazia).
+   - LEITURA:  para quem dá os avisos. Só texto (sem imagens): título e descrição de cada banner
+               e aviso do dia, aniversariantes da semana e visitantes de hoje.
+   - MÍDIA:    cria, edita e exclui avisos (com tema ou foto de fundo) e banners (envia a
+               imagem do celular), com datas "de / até" e a opção "Anunciar no telão".
+               Desligado = só aparece para a Leitura.
+   - CONTROLE: passa os slides do telão (próximo, anterior, tela preta, logo).
+  Na 1ª vez o Windows pergunta sobre a rede: clique em "Permitir".
+  Fora da igreja (de casa): instale o app gratuito Tailscale no computador da igreja e no
+  celular (mesma conta). Assim o celular acessa o endereço do Tailscale de qualquer lugar.
+
+BANNERS x AVISOS: o banner é a arte pronta (Canva). O título e a descrição dele são só para a
+  Leitura. O "aviso" é para quando não existe banner: o programa monta a arte com o texto.
+  No banner (aba Imagens, lápis) e no aviso dá para pôr datas "de / até" e ligar ou desligar
+  "Anunciar no telão". Ao adicionar um banner, a janela desses dados já abre.
+
+LISTA DO CULTO: abra um item e clique no ícone "adicionar à lista" acima dos slides.
+
+ONDE AS INFORMAÇÕES FICAM GUARDADAS
+  Tudo fica no computador da igreja, em Documentos\ProjecaoADMadureira, em arquivos .json
+  (um "banco de dados em arquivos": letras, hinos, membros, visitantes, avisos, configurações).
+  Os celulares não guardam nada: eles leem e gravam direto no computador pelo Wi-Fi.
+  Nada vai para a internet. Backup automático diário + "Fazer backup agora" (pendrive/nuvem).

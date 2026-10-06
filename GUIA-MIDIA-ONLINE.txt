@@ -1,0 +1,57 @@
+MÍDIA ONLINE: PUBLICAR AVISOS E BANNERS DE CASA
+===============================================
+Como funciona:
+  - Os avisos e banners ficam num banco de dados na internet (Supabase, plano gratuito).
+  - A equipe de mídia publica pelo celular ou PC de casa, numa página própria da igreja.
+  - O computador da igreja baixa tudo sozinho a cada minuto e GUARDA UMA CÓPIA (com as
+    imagens). Se a internet cair no culto, o telão continua funcionando com a cópia.
+  - Só avisos e banners vão para a internet. Letras, hinos, Bíblia, membros e visitantes
+    continuam só no computador da igreja.
+
+PARTE 1 · CRIAR O BANCO (uma vez, uns 10 minutos)
+  1. Entre em https://supabase.com > "Start your project" e crie uma conta (pode usar o Google).
+  2. "New project": nome "projecao-assembleia", crie uma senha do banco (guarde-a),
+     região "South America (São Paulo)" > "Create new project". Espere ficar pronto.
+  3. Menu da esquerda > "SQL Editor" > "New query". Abra o arquivo nuvem\instalar.sql
+     (está na pasta do programa) no Bloco de Notas, copie TUDO, cole e clique em "Run".
+     Deve aparecer "Success".
+  4. Bloquear cadastro de estranhos: "Authentication" > "Sign In / Providers" (ou "Providers")
+     > "Email": DESLIGUE "Allow new users to sign up" (permitir novos cadastros) e salve.
+  5. Criar os acessos: "Authentication" > "Users" > "Add user" > "Create new user":
+       - um para o computador da igreja (ex.: telao@suaigreja.com + senha);
+       - um para cada pessoa da mídia (e-mail + senha). Marque "Auto Confirm User".
+  6. Pegue os dados de conexão: "Project Settings" > "API" (ou "Data API" / "API Keys"):
+       - Project URL (ex.: https://abcdefgh.supabase.co)
+       - chave pública: "anon public" ou "publishable" (NUNCA use a "service_role"/"secret").
+
+PARTE 2 · LIGAR NO COMPUTADOR DA IGREJA
+  1. Abra o Projeção Assembleia > botão "Mídia online" (no topo).
+  2. Cole o Project URL e a chave pública; digite o e-mail e a senha do computador da igreja.
+  3. "Conectar e ligar". A bolinha do botão fica verde quando está sincronizado.
+  4. Já tinha avisos e banners no computador? Clique em "Enviar dados deste PC" (uma vez).
+
+PARTE 3 · PÁGINA DA EQUIPE DE MÍDIA (para usar de casa)
+  Usa o mesmo repositório do GitHub do GUIA-INSTALADOR.txt.
+  1. No GitHub, abra o arquivo web/config.js > ícone do lápis (editar) e preencha:
+        url: 'https://abcdefgh.supabase.co',
+        chave: 'sua chave pública'
+     > "Commit changes".
+  2. "Settings" > "Pages" > em "Source" escolha "GitHub Actions".
+  3. "Actions" > "Publicar Mídia online" > "Run workflow". Em 1–2 minutos o endereço fica
+     pronto: https://SEU-USUARIO.github.io/projecao-assembleia/
+  4. Mande esse endereço para a equipe de mídia. Cada um entra com o seu e-mail e senha.
+     No celular: "Adicionar à tela inicial" para virar ícone de app.
+
+NA PÁGINA DE MÍDIA
+  - Banners: escolher a imagem (ex.: feita no Canva), título e descrição (para quem lê os
+    avisos), datas "de / até" e "Anunciar no telão".
+  - Avisos: quando não há banner; título, texto, tema ou foto de fundo, datas e telão.
+  - Publicou? Em até 1 minuto aparece no computador da igreja.
+
+BOM SABER
+  - Plano gratuito do Supabase: 500 MB de banco e 1 GB de imagens (milhares de banners).
+  - Se o projeto ficar parado muitos dias sem nenhum acesso, o Supabase pode pausá-lo:
+    é só entrar no painel e clicar em "Restore project". Com o programa aberto nos cultos,
+    isso normalmente não acontece.
+  - Para tirar o acesso de alguém: Supabase > Authentication > Users > apagar o usuário.
+  - Para voltar a ter avisos só no computador: "Mídia online" > "Desligar".

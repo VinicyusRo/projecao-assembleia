@@ -1,0 +1,35 @@
+COMO GERAR O INSTALADOR (.exe) DO PROJEÇÃO ASSEMBLEIA
+=====================================================
+O instalador é montado de graça pelo GitHub (não precisa instalar nada no seu computador).
+Faça uma vez; depois, sempre que receber uma versão nova, é só repetir os passos 3 e 4.
+
+1. CRIAR A CONTA E O REPOSITÓRIO
+   - Entre em https://github.com e crie uma conta (gratuita).
+   - Clique em "+" (canto superior direito) > "New repository".
+   - Nome: projecao-assembleia · marque "Public" · clique em "Create repository".
+     (Público é necessário para a página de Mídia online ser gratuita. Os DADOS da igreja
+      não vão para o GitHub: só o programa. Membros, visitantes etc. ficam no computador.)
+
+2. ENVIAR OS ARQUIVOS
+   - Na página do repositório, clique em "uploading an existing file".
+   - Descompacte o .zip do programa e ARRASTE TODO O CONTEÚDO da pasta "projecao"
+     (inclusive a pasta ".github") para a página. Clique em "Commit changes".
+
+3. GERAR O INSTALADOR
+   - Abra a aba "Actions" > à esquerda "Gerar instalador" > botão "Run workflow" > "Run workflow".
+   - Espere uns 5 minutos até ficar com o sinal verde ✔.
+   - Clique na execução > lá embaixo, em "Artifacts", baixe "Instalador-Projecao-Assembleia".
+   - Dentro do .zip baixado está o "Projecao-Assembleia-Setup-1.0.0.exe".
+
+4. INSTALAR NO COMPUTADOR DA IGREJA
+   - Dê dois cliques no Setup.exe.
+   - O Windows pode mostrar "O Windows protegeu o computador" (o programa não tem
+     assinatura paga da Microsoft). Clique em "Mais informações" > "Executar assim mesmo".
+   - Escolha a pasta (ou deixe a sugerida) e conclua. O atalho "Projeção Assembleia",
+     com o ícone da igreja, aparece na área de trabalho e no menu Iniciar.
+   - Não precisa mais de Node.js. Os dados da versão anterior continuam (pasta
+     Documentos\ProjecaoADMadureira).
+
+ATUALIZAR PARA UMA VERSÃO NOVA
+   - Envie os arquivos novos para o repositório (passo 2, substituindo), gere o instalador
+     (passo 3) e instale por cima (passo 4). Os dados não são apagados.
