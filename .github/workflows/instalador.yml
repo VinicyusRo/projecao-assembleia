@@ -11,12 +11,39 @@ jobs:
       - uses: actions/setup-node@v4
         with:
           node-version: 20
-      - name: Montar o instalador
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - name: Conferir os arquivos e o icone
         shell: pwsh
         run: |
           $pasta = (Get-ChildItem -Path . -Recurse -Filter package.json -Depth 2 | Where-Object { $_.FullName -notmatch 'node_modules' } | Select-Object -First 1).DirectoryName
           if (-not $pasta) { throw "Nao encontrei o package.json. Envie todos os arquivos do programa para o repositorio." }
-          Set-Location $pasta
+          "PASTA=$pasta" | Out-File -FilePath $env:GITHUB_ENV -Append -Encoding utf8
+          pip install pillow --quiet
+          python -c @"
+          import os, json
+          from PIL import Image
+          p = r'$pasta'; a = os.path.join(p, 'assets'); os.makedirs(a, exist_ok=True)
+          ico = os.path.join(a, 'icone.ico')
+          if not os.path.exists(ico):
+              for n in ['icone.png', 'logo.png', 'icone-512.png', 'icone-192.png']:
+                  f = os.path.join(a, n)
+                  if os.path.exists(f):
+                      Image.open(f).convert('RGBA').save(ico, sizes=[(256,256),(128,128),(64,64),(48,48),(32,32),(16,16)])
+                      print('Icone criado a partir de', n); break
+          if not os.path.exists(ico):
+              print('Sem imagem de icone: o instalador vai usar o icone padrao')
+              pj = os.path.join(p, 'package.json'); d = json.load(open(pj, encoding='utf-8'))
+              d['build'].get('win', {}).pop('icon', None)
+              for k in ['installerIcon', 'uninstallerIcon']: d['build'].get('nsis', {}).pop(k, None)
+              json.dump(d, open(pj, 'w', encoding='utf-8'), ensure_ascii=False, indent=2)
+          print('Arquivos em assets:', os.listdir(a))
+          "@
+      - name: Montar o instalador
+        shell: pwsh
+        run: |
+          Set-Location $env:PASTA
           npm install --no-audit --no-fund
           npx electron-builder --win --x64 --publish never
           New-Item -ItemType Directory -Force -Path "$env:GITHUB_WORKSPACE/saida" | Out-Null
