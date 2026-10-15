@@ -336,7 +336,7 @@ $('formInternet').addEventListener('submit', async e => {
   inResultados = r.resultados;
   $('inFontes').textContent = r.avisos.join(' · ');
   $('inLista').innerHTML = inResultados.map((x, i) =>
-    `<li data-i="${i}"><b>${esc(x.titulo)}</b><span>${esc(x.artista)}</span><i>${x.fonte === 'vagalume' ? 'VAGALUME' : x.fonte === 'letras' ? 'LETRAS' : 'LRCLIB'}</i></li>`).join('')
+    `<li data-i="${i}"><b>${esc(x.titulo)}</b><span>${esc(x.artista)}</span><i>${x.fonte === 'vagalume' ? 'VAGALUME' : x.fonte === 'letras' ? 'LETRAS' : x.fonte === 'genius' ? 'GENIUS' : 'LRCLIB'}</i></li>`).join('')
     || `<li class="vazio-lista">Nada encontrado para “${esc(q)}”.${r.avisos.length ? '' : '<br>Tente outro nome ou um trecho da letra.'}</li>`;
   if (inResultados.length) mostrarLetraInternet(0);
 });
