@@ -1,4 +1,4 @@
-const { app, BrowserWindow, ipcMain, dialog, screen, shell, nativeImage, safeStorage } = require('electron');
+const { app, BrowserWindow, ipcMain, dialog, screen, shell, nativeImage, safeStorage, powerSaveBlocker } = require('electron');
 const path = require('path');
 const fs = require('fs');
 const os = require('os');
@@ -10,6 +10,7 @@ const Biblia = require('./lib/biblia');
 const IG = require('./lib/igreja');
 const Nuvem = require('./lib/nuvem');
 const LetrasOnline = require('./lib/letrasOnline');
+const { Atualizador } = require('./lib/atualizador');
 
 let opWin = null;
 let projWin = null;
@@ -71,30 +72,81 @@ function criarOperador() {
     webPreferences: { preload: path.join(__dirname, 'preload.js') }
   });
   opWin.loadFile(path.join(__dirname, 'src', 'index.html'));
+  opWin.webContents.on('before-input-event', (e, i) => { if (i.type === 'keyDown' && i.key === 'F12') opWin.webContents.toggleDevTools(); });
+  opWin.webContents.on('preload-error', (e, p, err) => registrarErro('preload', err));
+  opWin.webContents.on('console-message', (e, nivel, msg, linha, origem) => { if (nivel >= 3) registrarErro('tela', `${msg} @ ${String(origem).split('/').pop()}:${linha}`); });
   opWin.on('closed', () => { opWin = null; app.quit(); });
 }
 
-function abrirProjetor() {
-  if (projWin && !projWin.isDestroyed()) { projWin.focus(); return; }
+// tela do projetor: a que não é a principal (Windows em "Estender", tecla Windows+P)
+function telaExterna() {
   const prim = screen.getPrimaryDisplay();
-  const ext = screen.getAllDisplays().find(d => d.id !== prim.id);
+  return screen.getAllDisplays().find(d => d.id !== prim.id) || null;
+}
+let bloqueioSono = null;
+// modo apresentação: tela cheia na segunda tela, sem bordas, sem barra de tarefas, por cima, sem cursor
+function modoApresentacao(ext) {
+  if (!projWin || projWin.isDestroyed()) return;
+  if (ext) {
+    projWin.setFullScreen(false);
+    projWin.setBounds(ext.bounds);
+    projWin.setSkipTaskbar(true);
+    projWin.setAlwaysOnTop(true, 'screen-saver');
+    projWin.setFullScreen(true);
+    projWin.webContents.send('telao:apresentacao', true);
+  } else {
+    projWin.setAlwaysOnTop(false);
+    projWin.setSkipTaskbar(false);
+    projWin.setFullScreen(false);
+    projWin.setBounds({ width: 960, height: 540 });
+    projWin.center();
+    projWin.webContents.send('telao:apresentacao', false);
+  }
+  if (opWin && !opWin.isDestroyed()) opWin.focus();
+}
+function abrirProjetor() {
+  if (projWin && !projWin.isDestroyed()) { projWin.showInactive(); return; }
+  const ext = telaExterna();
   const opts = {
     backgroundColor: '#000000', show: false, autoHideMenuBar: true, title: 'Telão',
     icon: path.join(__dirname, 'assets', 'icone.png'),
     webPreferences: { preload: path.join(__dirname, 'preload.js') }
   };
-  if (ext) Object.assign(opts, { x: ext.bounds.x, y: ext.bounds.y, width: ext.bounds.width, height: ext.bounds.height, frame: false });
+  if (ext) Object.assign(opts, { x: ext.bounds.x, y: ext.bounds.y, width: ext.bounds.width, height: ext.bounds.height, frame: false, skipTaskbar: true });
   else Object.assign(opts, { width: 960, height: 540 });
 
   projWin = new BrowserWindow(opts);
   projWin.loadFile(path.join(__dirname, 'src', 'projetor.html'));
   projWin.once('ready-to-show', () => {
     projWin.show();
-    if (ext) projWin.setFullScreen(true);
-    if (opWin) opWin.focus();
+    modoApresentacao(ext);
   });
-  projWin.on('closed', () => { projWin = null; avisarStatus(); });
+  // não deixa a tela/projetor apagar nem a proteção de tela entrar enquanto o telão está aberto
+  if (bloqueioSono == null || !powerSaveBlocker.isStarted(bloqueioSono)) bloqueioSono = powerSaveBlocker.start('prevent-display-sleep');
+  projWin.on('closed', () => {
+    projWin = null;
+    if (bloqueioSono != null && powerSaveBlocker.isStarted(bloqueioSono)) powerSaveBlocker.stop(bloqueioSono);
+    bloqueioSono = null;
+    avisarStatus();
+  });
   avisarStatus();
+}
+// projetor ligado ou desligado com o programa aberto: o telão vai sozinho para a tela certa
+function telasMudaram() {
+  avisarStatus();
+  if (!projWin || projWin.isDestroyed()) return;
+  setTimeout(() => {
+    if (!projWin || projWin.isDestroyed()) return;
+    const ext = telaExterna();
+    if (ext) modoApresentacao(ext);
+    else {
+      // sem segunda tela: volta a ser janela (com borda é preciso recriar a janela)
+      const estado = ultimoEstado;
+      projWin.destroy(); projWin = null;
+      abrirProjetor();
+      if (estado) setTimeout(() => projWin && projWin.webContents.send('estado', estado), 800);
+    }
+  }, 700);
 }
 function avisarStatus() {
   enviarOp('projetor:status', { aberto: !!projWin, telas: screen.getAllDisplays().length });
@@ -126,6 +178,60 @@ ipcMain.handle('musicas:excluir', (e, id) => {
 });
 
 // Para hinos, o nome do arquivo pode ser "015 - Chuvas de Graça.txt"
+// ---------- Harpa Cristã: baixar os 640 hinos (arquivo público no GitHub) ----------
+const HARPA_URLS = process.env.HARPA_URL ? [process.env.HARPA_URL] : [
+  'https://raw.githubusercontent.com/DanielLiberato/Harpa-Crista-JSON-640-Hinos-Completa/main/harpa_crista_640_hinos.json',
+  'https://cdn.jsdelivr.net/gh/DanielLiberato/Harpa-Crista-JSON-640-Hinos-Completa@main/harpa_crista_640_hinos.json'
+];
+const textoHarpa = t => String(t || '')
+  .replace(/<br\s*\/?>/gi, '\n').replace(/<[^>]+>/g, '')
+  .replace(/&nbsp;/g, ' ').replace(/&quot;/g, '"').replace(/&#39;|&apos;/g, "'").replace(/&amp;/g, '&')
+  .split('\n').map(l => l.replace(/\s+/g, ' ').trim()).filter(Boolean).join('\n');
+// estrofe 1, coro, estrofe 2, coro… (cada bloco vira um slide)
+function hinoDaHarpa(num, h) {
+  const titulo = String(h.hino || '').replace(/^\s*\d+\s*[-–.]\s*/, '').trim() || `Hino ${num}`;
+  const coro = textoHarpa(h.coro);
+  const versos = Object.keys(h.verses || {}).sort((a, b) => +a - +b).map(k => textoHarpa(h.verses[k])).filter(Boolean);
+  const blocos = [];
+  versos.forEach(v => { blocos.push(v); if (coro) blocos.push(coro); });
+  if (!versos.length && coro) blocos.push(coro);
+  return { titulo, letra: blocos.join('\n\n') };
+}
+ipcMain.handle('harpa:baixar', async (e, { substituir, corrigir }) => {
+  let dados = null, ultimoErro = null;
+  for (const url of HARPA_URLS) {
+    try {
+      const r = await fetch(url, { signal: AbortSignal.timeout(120000) });
+      if (!r.ok) throw new Error('o site respondeu ' + r.status);
+      dados = await r.json(); break;
+    } catch (err) { ultimoErro = err; }
+  }
+  if (!dados) {
+    const semNet = /fetch failed|ENOTFOUND|ECONN|timeout|aborted/i.test(String(ultimoErro && ultimoErro.message || ultimoErro));
+    return { ok: false, erro: semNet ? 'Sem conexão com a internet. Tente de novo quando estiver conectado.' : 'Não consegui baixar: ' + (ultimoErro && ultimoErro.message) };
+  }
+  const HINARIO = 'Harpa Cristã';
+  const lista = lerMusicas();
+  let adicionados = 0, substituidos = 0, mantidos = 0;
+  for (const k of Object.keys(dados)) {
+    const num = parseInt(k, 10);
+    if (!(num >= 1 && num <= 2000) || !dados[k] || typeof dados[k] !== 'object') continue;
+    const { titulo, letra: bruta } = hinoDaHarpa(num, dados[k]);
+    if (!bruta) continue;
+    const letra = corrigir ? Texto.corrigir(bruta) : bruta;
+    const i = lista.findIndex(m => (m.hinario || '').trim().toLowerCase() === HINARIO.toLowerCase() && +m.numero === num);
+    if (i >= 0) {
+      if (!substituir) { mantidos++; continue; }
+      Object.assign(lista[i], { titulo, letra, atualizadoEm: Date.now() }); substituidos++;
+    } else {
+      lista.push({ id: crypto.randomUUID(), titulo, artista: '', hinario: HINARIO, numero: num, letra, atualizadoEm: Date.now(), origem: 'harpa-online' });
+      adicionados++;
+    }
+  }
+  if (!adicionados && !substituidos && !mantidos) return { ok: false, erro: 'O arquivo baixado não tinha hinos.' };
+  gravarMusicas(lista);
+  return { ok: true, adicionados, substituidos, mantidos };
+});
 ipcMain.handle('musicas:importar', async (e, { corrigir, hinario }) => {
   const r = await dialog.showOpenDialog(opWin, {
     title: hinario ? `Importar hinos (${hinario})` : 'Importar letras',
@@ -188,6 +294,68 @@ ipcMain.handle('biblias:importar', async () => {
     return { ok: true, id, nome, total };
   } catch (err) {
     return { ok: false, erro: err.message };
+  }
+});
+// ---------- Bíblias para baixar da internet (Bolls Bible: gratuita, sem chave) ----------
+const BOLLS = process.env.BOLLS_URL || 'https://bolls.life';
+const VERSOES_ONLINE = [
+  ['ARC09', 'ARC', 'Almeida Revista e Corrigida (2009)'], ['ACF11', 'ACF', 'Almeida Corrigida Fiel (2011)'],
+  ['ARA', 'ARA', 'Almeida Revista e Atualizada (1993)'], ['NAA', 'NAA', 'Nova Almeida Atualizada (2017)'],
+  ['ALM21', 'A21', 'Almeida Século 21'], ['NVIPT', 'NVI', 'Nova Versão Internacional'],
+  ['NVT', 'NVT', 'Nova Versão Transformadora (2016)'], ['NTLH', 'NTLH', 'Nova Tradução na Linguagem de Hoje (2000)'],
+  ['KJA', 'KJA', 'King James Atualizada (2001)'], ['TB10', 'TB', 'Tradução Brasileira (2010)'],
+  ['NBV07', 'NBV', 'Nova Bíblia Viva (2007)'], ['VFL', 'VFL', 'Versão Fácil de Ler'], ['OL', 'OL', 'O Livro'],
+  ['MENS', 'MSG', 'A Mensagem']
+].map(([cod, sigla, nome]) => ({ cod, sigla, nome }));
+ipcMain.handle('biblias:online', () => VERSOES_ONLINE.map(v => Object.assign({}, v, { instalada: indiceBiblias().some(b => b.origem === v.cod) })));
+// texto da Bolls vem em HTML: tira números de Strong, notas e tags
+const textoBolls = t => String(t || '')
+  .replace(/<S>.*?<\/S>/gi, '').replace(/<sup>.*?<\/sup>/gi, '').replace(/<br\s*\/?>|<\/br>/gi, ' ')
+  .replace(/<[^>]+>/g, '').replace(/&nbsp;/g, ' ').replace(/&quot;/g, '"').replace(/&#39;|&apos;/g, "'").replace(/&lt;/g, '<').replace(/&gt;/g, '>').replace(/&amp;/g, '&')
+  .replace(/\s+/g, ' ').trim();
+function converterBolls(versos) {
+  if (!Array.isArray(versos)) throw new Error('Formato inesperado');
+  const livros = Biblia.LIVROS.map(() => []);
+  let total = 0;
+  for (const v of versos) {
+    const b = (+v.book) - 1, c = (+v.chapter) - 1, n = (+v.verse) - 1;
+    if (!(b >= 0 && b < 66 && c >= 0 && n >= 0)) continue;
+    const cap = livros[b][c] || (livros[b][c] = []);
+    const t = textoBolls(v.text); if (!t) continue;
+    cap[n] = t; total++;
+  }
+  for (const l of livros) for (let c = 0; c < l.length; c++) { if (!l[c]) l[c] = []; for (let n = 0; n < l[c].length; n++) if (l[c][n] == null) l[c][n] = ''; }
+  return { livros, total };
+}
+ipcMain.handle('biblias:baixar', async (e, cod) => {
+  const v = VERSOES_ONLINE.find(x => x.cod === cod);
+  if (!v) return { ok: false, erro: 'Versão desconhecida' };
+  const avisar = d => { if (opWin && !opWin.isDestroyed()) opWin.webContents.send('biblias:progresso', Object.assign({ cod }, d)); };
+  try {
+    avisar({ fase: 'baixando', mb: 0 });
+    const r = await fetch(`${BOLLS}/static/translations/${encodeURIComponent(cod)}.json`, { signal: AbortSignal.timeout(10 * 60 * 1000) });
+    if (!r.ok) throw new Error('o site respondeu ' + r.status);
+    const total = +r.headers.get('content-length') || 0;
+    const partes = []; let lidos = 0, ultimo = 0;
+    const leitor = r.body.getReader();
+    for (;;) {
+      const { done, value } = await leitor.read(); if (done) break;
+      partes.push(value); lidos += value.length;
+      if (lidos - ultimo > 400000) { ultimo = lidos; avisar({ fase: 'baixando', mb: lidos / 1048576, pct: total ? Math.round(lidos * 100 / total) : null }); }
+    }
+    avisar({ fase: 'convertendo' });
+    const { livros, total: versos } = converterBolls(JSON.parse(Buffer.concat(partes).toString('utf8')));
+    if (versos < 1000) throw new Error('a versão veio incompleta');
+    const idx = indiceBiblias().filter(b => b.origem !== cod);   // baixar de novo substitui a anterior
+    const id = 'bolls-' + cod.toLowerCase();
+    gravarJSON(arq(`biblias/${id}.json`), { nome: v.sigla, livros }, true);
+    idx.push({ id, nome: v.sigla, total: versos, origem: cod }); gravarJSON(arq('biblias/indice.json'), idx);
+    avisar({ fase: 'pronto' });
+    return { ok: true, id, nome: v.sigla, total: versos };
+  } catch (err) {
+    const semNet = /fetch failed|ENOTFOUND|ECONN|timeout|aborted/i.test(String(err.message || err));
+    avisar({ fase: 'erro' });
+    return { ok: false, erro: semNet ? 'Sem conexão com a internet (ou o site da Bíblia está fora do ar). Tente de novo mais tarde.' : 'Não consegui baixar: ' + err.message };
   }
 });
 ipcMain.handle('biblias:carregar', (e, id) => lerJSON(arq(`biblias/${path.basename(id)}.json`), null));
@@ -379,6 +547,15 @@ ipcMain.handle('imagens:adicionar', async (e, tipo) => {
   const dir = dirImagens(tipo);
   return r.filePaths.map(f => path.basename(copiarPara(dir, f)));
 });
+// novo banner a partir da imagem arrastada/escolhida na janela "Novo banner"
+ipcMain.handle('banners:novo', async (e, dataURL, nomeArquivo, meta) => {
+  meta = meta || {};
+  const limpo = { titulo: String(meta.titulo || '').trim(), descricao: String(meta.descricao || '').trim(), inicio: meta.inicio || '', fim: meta.fim || '', rotativo: meta.rotativo !== false };
+  if (modoNuvem()) { const b = dataURLParaBuffer(dataURL); return nuvemNovoBanner(b.dados, b.ext, limpo); }
+  const nome = salvarDataURL(dataURL, dirImagens('banners'), limpo.titulo || nomeArquivo || 'banner');
+  const m = lerMetaBanners(); m[nome] = limpo; gravarJSON(arq('banners.json'), m);
+  return nome;
+});
 ipcMain.handle('imagens:excluir', async (e, tipo, nome) => {
   if (tipo === 'banners' && modoNuvem()) return nuvemExcluirBanner(nome);
   const f = path.join(dirImagens(tipo), path.basename(nome));
@@ -431,6 +608,10 @@ ipcMain.on('estado:enviar', (e, estado) => {
 });
 ipcMain.handle('estado:obter', () => ultimoEstado);
 ipcMain.handle('projetor:alternar', () => { if (projWin) projWin.close(); else abrirProjetor(); return true; });
+ipcMain.handle('projetor:abrir', () => { if (!projWin || projWin.isDestroyed()) abrirProjetor(); return true; });
+ipcMain.handle('projetor:fechar', () => { if (projWin && !projWin.isDestroyed()) projWin.close(); return true; });
+ipcMain.handle('projetor:sair', () => { enviarOp('remoto:cmd', { acao: 'sair' }); return true; });
+ipcMain.handle('projetor:tecla', (e, k) => { enviarOp('remoto:cmd', { acao: 'tecla', ref: String(k).slice(0, 12), i: 0 }); return true; });   // Esc apertado no próprio telão
 ipcMain.handle('pasta:abrir', () => shell.openPath(pasta()));
 
 // ---------- App de celular (Android / iPhone) pela rede Wi-Fi da igreja ----------
@@ -440,7 +621,9 @@ const PODE = {                       // o que cada perfil acessa
   estado: ['controle'], cmd: ['controle'],
   visitantes: ['recepcao', 'midia'], leitura: ['leitura', 'midia', 'recepcao'], midia: ['midia']
 };
-let remoto = { titulo: '', slides: [], vivo: -1, modo: 'logo' };
+let remoto = { titulo: '', slides: [], vivo: -1, modo: 'limpo' };
+let catalogo = { culto: [], musicas: [], hinos: [], avisos: [], imagens: [], biblia: null };
+ipcMain.on('remoto:catalogo', (e, c) => { catalogo = c || catalogo; });
 let infoRede = { urls: [], porta: 0 };
 ipcMain.on('remoto:estado', (e, s) => { remoto = s; });
 
@@ -482,7 +665,11 @@ function paraWeb(u) {
   if (u.startsWith(bd)) return '/banner/' + u.slice(bd.length);
   return null;
 }
-function listarBanners() {
+// "Leitura": o que aparece para quem dá os avisos. Guardado à parte (vale para avisos/banners locais e da nuvem)
+const lerOcultosLeitura = () => lerJSON(arq('leitura-oculta.json'), {});
+const comLeitura = (lista, tipo) => { const o = lerOcultosLeitura(); return lista.map(x => Object.assign(x, { leitura: !o[tipo + ':' + (tipo === 'aviso' ? x.id : x.nome)] })); };
+function listarBanners() { return comLeitura(listarBannersBase(), 'banner'); }
+function listarBannersBase() {
   if (modoNuvem()) return nuvemBanners();
   const meta = lerMetaBanners(), dir = dirImagens('banners');
   try {
@@ -544,10 +731,39 @@ function bannerDaLinha(r) {
     inicio: r.inicio || '', fim: r.fim || '', rotativo: r.rotativo !== false, t: Date.parse(r.atualizado_em) || 0, nuvem: true };
 }
 function listarAvisos() {
-  if (!modoNuvem()) return lerJSON(arq('avisos.json'), []);
+  if (!modoNuvem()) return comLeitura(lerJSON(arq('avisos.json'), []), 'aviso');
   conexaoNuvem();
-  return lerCache().avisos.map(avisoDaLinha);
+  return comLeitura(lerCache().avisos.map(avisoDaLinha), 'aviso');
 }
+// liga/desliga "Telão" (avisos automáticos) ou "Leitura" de um aviso ou banner, sem abrir o editor
+async function definirVisibilidade(tipo, chave, campo, valor) {
+  valor = !!valor; chave = String(chave || '');
+  if (!['aviso', 'banner'].includes(tipo) || !chave) throw new Error('Item inválido');
+  if (campo === 'leitura') {
+    const o = lerOcultosLeitura();
+    if (valor) delete o[tipo + ':' + chave]; else o[tipo + ':' + chave] = true;
+    gravarJSON(arq('leitura-oculta.json'), o);
+  } else if (campo === 'telao') {
+    if (tipo === 'aviso') {
+      if (modoNuvem()) {
+        const a = listarAvisos().find(x => x.id === chave); if (!a) throw new Error('Aviso não encontrado');
+        await nuvemSalvarAviso(Object.assign({}, a, { rotativo: valor }));
+      } else {
+        const lista = lerJSON(arq('avisos.json'), []); const a = lista.find(x => x.id === chave);
+        if (!a) throw new Error('Aviso não encontrado');
+        a.rotativo = valor; gravarJSON(arq('avisos.json'), lista);
+      }
+    } else {
+      const b = listarBanners().find(x => x.nome === chave); if (!b) throw new Error('Banner não encontrado');
+      const meta = { titulo: b.titulo || '', descricao: b.descricao || '', inicio: b.inicio || '', fim: b.fim || '', rotativo: valor };
+      if (modoNuvem()) await nuvemMetaBanner(chave, meta);
+      else { const m = lerMetaBanners(); m[chave] = Object.assign({}, m[chave] || {}, meta); gravarJSON(arq('banners.json'), m); }
+    }
+  } else throw new Error('Opção inválida');
+  enviarOp('dados:mudou', tipo === 'aviso' ? 'avisos' : 'banners');
+  return true;
+}
+ipcMain.handle('visibilidade:definir', (e, tipo, chave, campo, valor) => definirVisibilidade(tipo, chave, campo, valor));
 function nuvemBanners() { conexaoNuvem(); return lerCache().banners.map(bannerDaLinha).sort((a, b) => b.t - a.t); }
 
 async function sincronizarNuvem() {
@@ -748,10 +964,11 @@ function iniciarServidor(porta = 4210, tentativas = 5) {
 
       // controle de slides
       if (r === '/api/estado') return pode('estado') ? json(res, 200, remoto) : proibido();
+      if (r === '/api/catalogo') return pode('estado') ? json(res, 200, catalogo) : proibido();
       if (r === '/api/cmd' && req.method === 'POST') {
         if (!pode('cmd')) return proibido();
         const cmd = await corpo(req);
-        enviarOp('remoto:cmd', { acao: String(cmd.acao), i: +cmd.i || 0 });
+        enviarOp('remoto:cmd', { acao: String(cmd.acao), i: +cmd.i || 0, tipo: String(cmd.tipo || ''), ref: String(cmd.ref || '') });
         res.writeHead(204); return res.end();
       }
 
@@ -797,9 +1014,9 @@ function iniciarServidor(porta = 4210, tentativas = 5) {
         if (!pode('leitura')) return proibido();
         const membros = lerJSON(arq('membros.json'), []);
         return json(res, 200, {
-          avisos: listarAvisos().filter(dentroDoPeriodo)
+          avisos: listarAvisos().filter(dentroDoPeriodo).filter(a => a.leitura !== false)
             .map(a => ({ tipo: 'Aviso', titulo: a.titulo, texto: a.texto, inicio: a.inicio, fim: a.fim, telao: a.rotativo !== false })),
-          banners: listarBanners().filter(dentroDoPeriodo)
+          banners: listarBanners().filter(dentroDoPeriodo).filter(x => x.leitura !== false)
             .map(x => ({ tipo: 'Banner', titulo: x.titulo || x.nome.replace(/\.[^.]+$/, ''), descricao: x.descricao, inicio: x.inicio, fim: x.fim, telao: x.rotativo !== false })),
           aniversariantes: IG.aniversariantesDaSemana(membros)
             .map(x => ({ nome: x.m.nome, rotulo: IG.rotuloData(x), hoje: x.diff === 0, casal: !!x.m.casal, foto: paraWeb(x.m.foto) })),
@@ -807,6 +1024,13 @@ function iniciarServidor(porta = 4210, tentativas = 5) {
         });
       }
 
+      // mídia: botões rápidos "Telão" e "Leitura"
+      if (r === '/api/visibilidade' && req.method === 'POST') {
+        if (!pode('midia')) return proibido();
+        const d = await corpo(req);
+        try { await definirVisibilidade(d.tipo, d.chave, d.campo, d.valor); } catch (e) { return json(res, 400, { erro: e.message }); }
+        res.writeHead(204); return res.end();
+      }
       // mídia: avisos e banners
       if (r === '/api/midia') {
         if (!pode('midia')) return proibido();
@@ -903,6 +1127,58 @@ function ipsLocais() {
     .filter(i => i && i.family === 'IPv4' && !i.internal).map(i => i.address);
 }
 
+// ---------- Erros do processo principal: grava em erros.log e avisa ----------
+function registrarErro(onde, e) {
+  const msg = `[${new Date().toISOString()}] ${onde}: ${(e && e.stack) || e}\n`;
+  try { fs.mkdirSync(pasta(), { recursive: true }); fs.appendFileSync(arq('erros.log'), msg); } catch { /* sem disco */ }
+  try { if (opWin && !opWin.isDestroyed()) opWin.webContents.executeJavaScript(`typeof mostrarErro==='function'&&mostrarErro(${JSON.stringify(onde + ': ' + ((e && e.message) || e))})`).catch(() => {}); } catch { /* janela fechada */ }
+}
+process.on('uncaughtException', e => registrarErro('processo principal', e));
+process.on('unhandledRejection', e => registrarErro('processo principal (promessa)', e));
+
+// ---------- Atualização automática (GitHub Releases) ----------
+let atualizador = null;
+// depois de reabrir: confere se a atualização entrou mesmo e avisa na tela
+let ultimaTentativa = null;
+function conferirAtualizacaoFeita() {
+  const f = arq('atualizacao-pendente.json');
+  if (!fs.existsSync(f)) return;
+  const p = lerJSON(f, null); try { fs.rmSync(f, { force: true }); } catch (_) {}
+  ultimaTentativa = p;
+  if (!p || Date.now() - (p.quando || 0) > 2 * 60 * 60 * 1000) return;
+  let fimLog = '';
+  try { fimLog = fs.readFileSync(arq('atualizacao.log'), 'utf8').trim().split(/\r?\n/).slice(-6).join('\n'); } catch (_) {}
+  const ok = app.getVersion() === p.para || !require('./lib/atualizador').maior(p.para, app.getVersion());
+  setTimeout(() => enviarOp('atualizar:feito', { ok, de: p.de, para: p.para, atual: app.getVersion(), log: fimLog }), 2500);
+}
+function iniciarAtualizador() {
+  conferirAtualizacaoFeita();
+  let repo = process.env.ATUALIZACAO_REPO || '';
+  try { repo = repo || (require('./package.json').atualizacao || {}).repo || ''; } catch { /* sem package.json */ }
+  atualizador = new Atualizador({
+    repo, versao: app.getVersion(), pastaTemp: app.getPath('temp'),
+    aviso: e => enviarOp('atualizar:status', e)
+  });
+  if (!repo || (!app.isPackaged && !process.env.ATUALIZACAO_REPO)) return;
+  setTimeout(() => atualizador.verificar(), 20 * 1000);          // logo depois de abrir
+  setInterval(() => atualizador.verificar(), 3 * 60 * 60 * 1000); // e a cada 3 horas
+}
+// plano B: abre o instalador normal (com as telas "Avançar/Instalar") e fecha o programa
+ipcMain.handle('atualizar:manual', () => {
+  const arquivo = (ultimaTentativa && ultimaTentativa.arquivo) || (atualizador && atualizador.estado && atualizador.estado.arquivo);
+  if (!arquivo || !fs.existsSync(arquivo)) return false;
+  shell.openPath(arquivo);
+  setTimeout(() => { if (projWin && !projWin.isDestroyed()) projWin.destroy(); app.exit(0); }, 1500);
+  return true;
+});
+ipcMain.handle('atualizar:estado', () => atualizador ? atualizador.estado : { fase: 'parado', versaoAtual: app.getVersion() });
+ipcMain.handle('atualizar:verificar', () => atualizador ? atualizador.verificar() : { fase: 'sem-repo' });
+ipcMain.handle('atualizar:instalar', () => {
+  if (!atualizador) return false;
+  return atualizador.instalar(() => { if (projWin && !projWin.isDestroyed()) projWin.destroy(); app.exit(0); },
+    { exe: process.execPath, pid: process.pid, log: arq('atualizacao.log'), marcador: arq('atualizacao-pendente.json') });
+});
+
 // ---------- Início ----------
 app.setName('Projeção Assembleia');
 if (process.platform === 'win32') app.setAppUserModelId('br.org.assembleia.projecao');
@@ -911,15 +1187,17 @@ app.whenReady().then(() => {
   backupAutomatico();
   criarOperador();
   opWin.webContents.once('did-finish-load', () => {
-    if (screen.getAllDisplays().length > 1) abrirProjetor(); else avisarStatus();
+    avisarStatus();   // o telão só abre quando algo for projetado
     enviarOp('remoto:info', { urls: infoRede.urls, pin: acessos().controle });
   });
   observarBanners();
   iniciarServidor();
+  iniciarAtualizador();
   // mídia online: sincroniza ao abrir e a cada minuto
   setTimeout(sincronizarNuvem, 1500);
   setInterval(sincronizarNuvem, 60 * 1000);
-  screen.on('display-added', avisarStatus);
-  screen.on('display-removed', avisarStatus);
+  screen.on('display-added', telasMudaram);
+  screen.on('display-removed', telasMudaram);
+  screen.on('display-metrics-changed', () => { const ext = telaExterna(); if (ext && projWin && !projWin.isDestroyed()) modoApresentacao(ext); });
 });
 app.on('window-all-closed', () => app.quit());

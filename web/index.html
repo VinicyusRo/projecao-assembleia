@@ -1,0 +1,333 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, viewport-fit=cover">
+<meta name="theme-color" content="#1B4D3A">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-title" content="Mídia Assembleia">
+<link rel="apple-touch-icon" sizes="180x180" href="apple-touch-icon.png">
+<link rel="icon" type="image/png" href="icone-192.png">
+<link rel="manifest" href="manifest.json">
+<title>Mídia · Projeção Assembleia</title>
+<style>
+  :root { --bg: #F4F1EA; --cd: #fff; --tx: #14231B; --mu: #5B6B62; --bd: #E4DFD3; --ac: #1B4D3A; --ac2: #2E7A58; --gs: #DDE9E1; --go: #E0B96A; --be: #EFE6D2; --er: #B4442F; }
+  * { box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
+  [hidden] { display: none !important; }
+  html, body { margin: 0; min-height: 100%; }
+  body { font: 16px/1.4 system-ui, -apple-system, "Segoe UI", Roboto, sans-serif; background: var(--bg); color: var(--tx); }
+  button, input, textarea { font: inherit; color: inherit; }
+  header { background: var(--ac); color: #fff; padding: calc(10px + env(safe-area-inset-top)) 16px 10px; display: flex; align-items: center; gap: 10px; position: sticky; top: 0; z-index: 5; }
+  header img { width: 38px; height: 38px; border-radius: 50%; background: #fff; }
+  header .t { flex: 1; min-width: 0; }
+  header small { display: block; font-size: 10.5px; letter-spacing: .12em; color: var(--go); font-weight: 700; }
+  header b { display: block; font-size: 17px; }
+  header button { background: rgba(255,255,255,.14); border: 1px solid rgba(255,255,255,.25); color: #fff; border-radius: 10px; padding: 6px 12px; font-size: 14px; }
+  main { max-width: 760px; margin: 0 auto; padding: 16px 14px calc(30px + env(safe-area-inset-bottom)); }
+  .cartao { background: var(--cd); border: 1px solid var(--bd); border-radius: 16px; padding: 18px; }
+  h1 { font-size: 30px; font-weight: 500; letter-spacing: -.02em; margin: 8px 0 6px; }
+  .olho { display: flex; align-items: center; gap: 8px; font-size: 12px; font-weight: 700; letter-spacing: .12em; text-transform: uppercase; color: var(--ac); }
+  .olho::before { content: ""; width: 8px; height: 8px; border-radius: 50%; background: var(--ac); }
+  label.campo { display: block; font-size: 14px; color: var(--mu); margin: 14px 2px 5px; font-weight: 500; }
+  input[type=text], input[type=email], input[type=password], input[type=date], textarea { width: 100%; min-width: 0; border: 1px solid var(--bd); border-radius: 14px; padding: 14px 16px; background: #fff; font-size: 16px; outline: none; -webkit-appearance: none; display: block; }
+  input:focus, textarea:focus { border-color: var(--ac2); box-shadow: 0 0 0 3px var(--gs); }
+  textarea { resize: vertical; min-height: 90px; }
+  .btn { display: inline-flex; align-items: center; justify-content: center; border: none; border-radius: 14px; padding: 15px 18px; font-weight: 600; background: var(--ac); color: #fff; cursor: pointer; }
+  .btn.ouro { background: var(--go); color: #14231B; }
+  .btn.sec { background: #fff; color: var(--tx); border: 1px solid var(--bd); }
+  .btn.perigo { background: #fbe9e5; color: var(--er); }
+  .btn.largo { width: 100%; }
+  .btn:disabled { opacity: .6; }
+  .sub { color: var(--mu); font-size: 13.5px; }
+  .erro { color: var(--er); min-height: 1.3em; margin: 10px 2px 0; }
+  .linha { display: flex; gap: 10px; }
+  .linha > * { flex: 1; min-width: 0; }
+  .seg { display: flex; background: #e6e1d5; border-radius: 12px; padding: 4px; margin-bottom: 12px; }
+  .seg button { flex: 1; border: none; background: none; padding: 11px; border-radius: 9px; font-weight: 600; color: var(--mu); cursor: pointer; }
+  .seg button.on { background: #fff; color: var(--ac); box-shadow: 0 1px 3px rgba(0,0,0,.1); }
+  .item { display: flex; gap: 14px; align-items: center; background: #fff; border: 1px solid var(--bd); border-radius: 16px; padding: 10px; margin-bottom: 10px; cursor: pointer; }
+  .item .mini { width: 120px; aspect-ratio: 16/9; border-radius: 10px; overflow: hidden; position: relative; flex: none; background: var(--be) center / cover; }
+  .item .info { flex: 1; min-width: 0; }
+  .item b { display: block; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; font-size: 16.5px; }
+  .item .sub { display: block; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+  .selo { display: inline-block; font-size: 11px; font-weight: 800; letter-spacing: .06em; border-radius: 6px; padding: 2px 7px; margin-right: 4px; }
+  .selo.verde { background: var(--gs); color: var(--ac); } .selo.ouro { background: var(--go); color: #14231B; } .selo.cinza { background: #eceae4; color: #77736a; }
+  .vazio { text-align: center; color: var(--mu); padding: 26px 10px; }
+  .folha { position: fixed; inset: 0; background: var(--bg); z-index: 20; overflow-y: auto; }
+  .previa { position: relative; aspect-ratio: 16/9; border-radius: 14px; overflow: hidden; background: #000 center / contain no-repeat; box-shadow: 0 3px 14px rgba(20,35,27,.2); }
+  .temas { display: grid; grid-template-columns: repeat(7, 1fr); gap: 6px; }
+  .temas div { aspect-ratio: 1; border-radius: 10px; border: 2px solid transparent; cursor: pointer; }
+  .temas div.on { border-color: var(--ac); box-shadow: 0 0 0 2px var(--go); }
+  .arquivo { display: block; text-align: center; border: 2px dashed #cbbd98; border-radius: 14px; padding: 16px; color: var(--ac); font-weight: 600; margin-top: 12px; cursor: pointer; }
+  .arquivo input { display: none; }
+  .chave { display: flex; align-items: center; justify-content: space-between; gap: 12px; padding: 14px 2px; font-weight: 500; cursor: pointer; }
+  .chave input { display: none; }
+  .chave i { width: 50px; height: 30px; border-radius: 15px; background: #cfd6d1; position: relative; flex: none; transition: .2s; }
+  .chave i::after { content: ""; position: absolute; top: 3px; left: 3px; width: 24px; height: 24px; border-radius: 50%; background: #fff; transition: .2s; box-shadow: 0 1px 3px rgba(0,0,0,.2); }
+  .chave input:checked + i { background: var(--ac); } .chave input:checked + i::after { left: 23px; }
+  .toast { position: fixed; left: 50%; bottom: calc(20px + env(safe-area-inset-bottom)); transform: translate(-50%, 140px); background: var(--ac); color: #fff; border-left: 4px solid var(--go); padding: 12px 18px; border-radius: 12px; transition: transform .25s; z-index: 50; max-width: 90vw; }
+  .toast.on { transform: translate(-50%, 0); }
+  .logo-grande { display: block; width: 110px; margin: 10px auto 4px; }
+</style>
+</head>
+<body>
+<header>
+  <img src="logo.png" alt="">
+  <div class="t"><small>PROJEÇÃO ASSEMBLEIA</small><b>Mídia online</b></div>
+  <button id="sair" hidden>Sair</button>
+</header>
+
+<main>
+  <!-- configuração (só aparece se o config.js não foi preenchido) -->
+  <section id="vConfig" hidden>
+    <div class="cartao">
+      <div class="olho">Primeiro acesso</div>
+      <h1>Ligar ao banco online</h1>
+      <p class="sub">Copie do Supabase: Project Settings › API.</p>
+      <label class="campo">Endereço do projeto (Project URL)</label><input type="text" id="cfUrl" placeholder="https://xxxxxxxx.supabase.co">
+      <label class="campo">Chave pública (anon / publishable)</label><input type="text" id="cfChave">
+      <button class="btn largo" id="cfSalvar" style="margin-top:16px">Continuar</button>
+    </div>
+  </section>
+
+  <!-- login -->
+  <section id="vLogin" hidden>
+    <img class="logo-grande" src="logo.png" alt="">
+    <div class="cartao">
+      <div class="olho">Equipe de mídia</div>
+      <h1>Entrar</h1>
+      <form id="formLogin">
+        <label class="campo">E-mail</label><input type="email" id="lgEmail" autocomplete="username">
+        <label class="campo">Senha</label><input type="password" id="lgSenha" autocomplete="current-password">
+        <p class="erro" id="lgErro"></p>
+        <button class="btn ouro largo" type="submit" id="lgEntrar">Entrar</button>
+      </form>
+    </div>
+    <p class="sub" style="text-align:center;margin-top:14px">Os avisos e banners publicados aqui aparecem no computador da igreja em até 1 minuto.</p>
+  </section>
+
+  <!-- lista -->
+  <section id="vLista" hidden>
+    <div class="seg" id="seg"><button data-v="banners" class="on">Banners</button><button data-v="avisos">Avisos</button></div>
+    <div id="lista"></div>
+    <button class="btn largo" id="novo">+ Novo banner</button>
+    <p class="sub" style="text-align:center;margin-top:12px"><b>Banner</b> = arte pronta (ex.: Canva). <b>Aviso</b> = quando não há banner: o programa monta a arte com o texto.</p>
+  </section>
+</main>
+
+<!-- editor de banner -->
+<div class="folha" id="fBanner" hidden>
+  <header><div class="t"><small>MÍDIA ONLINE</small><b id="fbTit">Novo banner</b></div><button id="fbFechar">Fechar</button></header>
+  <main>
+    <div class="previa" id="fbPrevia"></div>
+    <label class="arquivo" id="fbArq">📷 Escolher a imagem do banner (16:9, ex.: 1920×1080)<input type="file" accept="image/*" id="fbFoto"></label>
+    <label class="campo">Título (para quem lê os avisos)</label><input type="text" id="fbTitulo" placeholder="Ex.: Congresso de Jovens">
+    <label class="campo">Descrição (o que o leitor vai anunciar)</label><textarea id="fbDesc" placeholder="Datas, horários, local…"></textarea>
+    <div class="linha"><div><label class="campo">Mostrar de</label><input type="date" id="fbIni"></div><div><label class="campo">até</label><input type="date" id="fbFim"></div></div>
+    <p class="sub">Sem datas: fica valendo até alguém excluir.</p>
+    <label class="chave">Anunciar no telão (avisos automáticos)<input type="checkbox" id="fbTelao" checked><i></i></label>
+    <button class="btn largo" id="fbSalvar">Salvar banner</button>
+    <button class="btn perigo largo" id="fbExcluir" style="margin-top:10px">Excluir banner</button>
+  </main>
+</div>
+
+<!-- editor de aviso -->
+<div class="folha" id="fAviso" hidden>
+  <header><div class="t"><small>MÍDIA ONLINE</small><b id="faTit">Novo aviso</b></div><button id="faFechar">Fechar</button></header>
+  <main>
+    <div class="previa" id="faPrevia"></div>
+    <label class="campo">Título *</label><input type="text" id="faTitulo" placeholder="Ex.: Santa Ceia">
+    <label class="campo">Texto</label><textarea id="faTexto" placeholder="Data, horário, local…"></textarea>
+    <label class="campo">Fundo</label><div class="temas" id="faTemas"></div>
+    <label class="arquivo">📷 Usar uma foto como fundo<input type="file" accept="image/*" id="faFoto"></label>
+    <div class="linha"><div><label class="campo">Mostrar de</label><input type="date" id="faIni"></div><div><label class="campo">até</label><input type="date" id="faFim"></div></div>
+    <p class="sub">Sem datas: fica valendo até alguém excluir.</p>
+    <label class="chave">Anunciar no telão (avisos automáticos)<input type="checkbox" id="faTelao" checked><i></i></label>
+    <button class="btn largo" id="faSalvar">Salvar aviso</button>
+    <button class="btn perigo largo" id="faExcluir" style="margin-top:10px">Excluir aviso</button>
+  </main>
+</div>
+
+<div class="toast" id="toast"></div>
+<script src="config.js"></script>
+<script src="fundo.js"></script>
+<script>
+const $ = id => document.getElementById(id);
+const esc = s => String(s ?? '').replace(/[&<>"]/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' }[c]));
+const ls = { get: k => { try { return localStorage.getItem(k); } catch (_) { return null; } }, set: (k, v) => { try { localStorage.setItem(k, v); } catch (_) {} }, del: k => { try { localStorage.removeItem(k); } catch (_) {} } };
+function toast(m) { const t = $('toast'); t.textContent = m; t.classList.add('on'); clearTimeout(toast.h); toast.h = setTimeout(() => t.classList.remove('on'), 2800); }
+const mostrar = id => ['vConfig', 'vLogin', 'vLista'].forEach(v => { $(v).hidden = v !== id; });
+
+// ---------- conexão com o Supabase (API web) ----------
+let URL_ = '', CHAVE = '', sessao = null;
+try { sessao = JSON.parse(ls.get('sessao') || 'null'); } catch (_) {}
+function lerConfig() {
+  const c = window.NUVEM || {};
+  URL_ = String(c.url || ls.get('nuvemUrl') || '').replace(/\/+$/, '');
+  CHAVE = c.chave || ls.get('nuvemChave') || '';
+  return !!(URL_ && CHAVE);
+}
+async function auth(tipo, corpo) {
+  const r = await fetch(`${URL_}/auth/v1/token?grant_type=${tipo}`, { method: 'POST', headers: { apikey: CHAVE, 'Content-Type': 'application/json' }, body: JSON.stringify(corpo) });
+  const j = await r.json().catch(() => ({}));
+  if (!r.ok) throw new Error(j.error_description || j.msg || 'E-mail ou senha incorretos');
+  sessao = { token: j.access_token, refresh: j.refresh_token, expira: Date.now() + (j.expires_in || 3600) * 1000 - 60000, email: (j.user || {}).email };
+  ls.set('sessao', JSON.stringify(sessao));
+}
+async function req(caminho, op = {}, denovo) {
+  if (!sessao) throw new Error('Entre de novo');
+  if (Date.now() > sessao.expira) await auth('refresh_token', { refresh_token: sessao.refresh }).catch(() => { sair(); throw new Error('Sessão expirada, entre de novo'); });
+  const r = await fetch(URL_ + caminho, Object.assign({}, op, { headers: Object.assign({ apikey: CHAVE, Authorization: 'Bearer ' + sessao.token }, op.headers || {}) }));
+  if (r.status === 401 && !denovo) { sessao.expira = 0; return req(caminho, op, true); }
+  if (!r.ok) { const t = await r.text(); let m = t; try { const j = JSON.parse(t); m = j.message || j.error || t; } catch (_) {} throw new Error(m || 'Erro ' + r.status); }
+  if (r.status === 204) return null;
+  return (r.headers.get('content-type') || '').includes('json') ? r.json() : null;
+}
+const listar = t => req(`/rest/v1/${t}?select=*&order=atualizado_em.desc`);
+const inserir = (t, l) => req(`/rest/v1/${t}`, { method: 'POST', headers: { 'Content-Type': 'application/json', Prefer: 'return=representation' }, body: JSON.stringify(l) });
+const atualizar = (t, id, l) => req(`/rest/v1/${t}?id=eq.${id}`, { method: 'PATCH', headers: { 'Content-Type': 'application/json', Prefer: 'return=representation' }, body: JSON.stringify(l) });
+const apagar = (t, id) => req(`/rest/v1/${t}?id=eq.${id}`, { method: 'DELETE' });
+const publica = c => `${URL_}/storage/v1/object/public/midia/${c}`;
+const caminhoDe = u => { const p = `${URL_}/storage/v1/object/public/midia/`; return u && u.startsWith(p) ? u.slice(p.length) : null; };
+async function enviarImagem(pastaNuvem, blob) {
+  const c = `${pastaNuvem}/${Date.now()}-${Math.random().toString(16).slice(2, 10)}.jpg`;
+  await req(`/storage/v1/object/midia/${c}`, { method: 'POST', headers: { 'Content-Type': 'image/jpeg', 'x-upsert': 'true' }, body: blob });
+  return publica(c);
+}
+const apagarImagem = u => { const c = caminhoDe(u); return c ? req(`/storage/v1/object/midia/${c}`, { method: 'DELETE' }).catch(() => null) : null; };
+
+// Reduz a foto antes de enviar (rápido mesmo no 4G)
+function reduzir(arquivo, max = 1920) {
+  return new Promise((ok, erro) => {
+    const i = new Image(), u = URL.createObjectURL(arquivo);
+    i.onload = () => {
+      const k = Math.min(1, max / Math.max(i.width, i.height));
+      const c = document.createElement('canvas'); c.width = Math.round(i.width * k); c.height = Math.round(i.height * k);
+      c.getContext('2d').drawImage(i, 0, 0, c.width, c.height); URL.revokeObjectURL(u);
+      c.toBlob(b => b ? ok(b) : erro(new Error('Não consegui ler a imagem')), 'image/jpeg', 0.86);
+    };
+    i.onerror = () => erro(new Error('Não consegui abrir a imagem'));
+    i.src = u;
+  });
+}
+
+// ---------- telas ----------
+function sair() { sessao = null; ls.del('sessao'); $('sair').hidden = true; mostrar('vLogin'); }
+$('sair').onclick = sair;
+$('cfSalvar').onclick = () => { ls.set('nuvemUrl', $('cfUrl').value.trim()); ls.set('nuvemChave', $('cfChave').value.trim()); if (lerConfig()) mostrar('vLogin'); };
+$('formLogin').addEventListener('submit', async e => {
+  e.preventDefault(); $('lgErro').textContent = ''; $('lgEntrar').disabled = true;
+  try { await auth('password', { email: $('lgEmail').value.trim(), password: $('lgSenha').value }); await abrirLista(); }
+  catch (err) { $('lgErro').textContent = /fetch/i.test(err.message) ? 'Sem conexão com a internet' : err.message; }
+  $('lgEntrar').disabled = false;
+});
+
+let dados = { avisos: [], banners: [] }, aba = 'banners';
+const hoje = () => { const d = new Date(); return d.getFullYear() + '-' + String(d.getMonth() + 1).padStart(2, '0') + '-' + String(d.getDate()).padStart(2, '0'); };
+const dataBR = d => d ? d.slice(8, 10) + '/' + d.slice(5, 7) : '';
+const periodo = x => x.inicio || x.fim ? '📅 ' + (x.inicio ? 'de ' + dataBR(x.inicio) + ' ' : '') + (x.fim ? 'até ' + dataBR(x.fim) : '') : 'sem data de término';
+const status = x => x.fim && x.fim < hoje() ? '<span class="selo cinza">ENCERRADO</span>' : x.inicio && x.inicio > hoje() ? '<span class="selo ouro">AGENDADO</span>'
+  : x.rotativo !== false ? '<span class="selo verde">NO TELÃO</span>' : '<span class="selo cinza">SÓ LEITURA</span>';
+const avisoVisual = r => Object.assign({}, AVISO_PADRAO, r.estilo || {}, { titulo: r.titulo, texto: r.texto });
+
+async function abrirLista() {
+  $('sair').hidden = false; mostrar('vLista');
+  try { const [a, b] = await Promise.all([listar('avisos'), listar('banners')]); dados = { avisos: a, banners: b }; }
+  catch (e) { toast(e.message); if (/entre de novo/i.test(e.message)) return; }
+  desenhar();
+}
+function desenhar() {
+  $('novo').textContent = aba === 'banners' ? '+ Novo banner' : '+ Novo aviso';
+  document.querySelectorAll('#seg button').forEach(b => b.classList.toggle('on', b.dataset.v === aba));
+  const L = dados[aba];
+  $('lista').innerHTML = L.map(x => aba === 'banners'
+    ? `<div class="item" data-id="${x.id}"><div class="mini" style="background-image:url('${esc(x.imagem_url)}')"></div><div class="info"><b>${esc(x.titulo || 'Sem título')}</b><span class="sub">${esc(x.descricao || 'Sem descrição')}</span><span class="sub">${status(x)} ${periodo(x)}</span></div></div>`
+    : `<div class="item" data-id="${x.id}"><div class="mini">${htmlAviso(avisoVisual(x))}</div><div class="info"><b>${esc(x.titulo)}</b><span class="sub">${esc(x.texto || '')}</span><span class="sub">${status(x)} ${periodo(x)}</span></div></div>`
+  ).join('') || `<p class="vazio">Nenhum ${aba === 'banners' ? 'banner' : 'aviso'} ainda.</p>`;
+}
+$('seg').addEventListener('click', e => { const b = e.target.closest('button'); if (b) { aba = b.dataset.v; desenhar(); } });
+$('novo').onclick = () => aba === 'banners' ? editarBanner(null) : editarAviso(null);
+$('lista').addEventListener('click', e => { const i = e.target.closest('.item'); if (!i) return; const x = dados[aba].find(y => y.id === i.dataset.id); aba === 'banners' ? editarBanner(x) : editarAviso(x); });
+
+// ---------- banner ----------
+let fb = null;
+function editarBanner(b) {
+  fb = Object.assign({ titulo: '', descricao: '', inicio: '', fim: '', rotativo: true }, b || {}); fb.arquivo = null;
+  $('fbTit').textContent = b ? 'Editar banner' : 'Novo banner';
+  $('fbTitulo').value = fb.titulo; $('fbDesc').value = fb.descricao; $('fbIni').value = fb.inicio || ''; $('fbFim').value = fb.fim || ''; $('fbTelao').checked = fb.rotativo !== false;
+  $('fbPrevia').style.backgroundImage = b ? `url('${b.imagem_url}')` : 'none'; $('fbExcluir').hidden = !b; $('fbFoto').value = '';
+  $('fbArq').firstChild.textContent = b ? '📷 Trocar a imagem ' : '📷 Escolher a imagem do banner (16:9, ex.: 1920×1080)';
+  $('fBanner').hidden = false; $('fBanner').scrollTop = 0;
+}
+$('fbFoto').onchange = async e => { const f = e.target.files[0]; if (!f) return; try { fb.arquivo = await reduzir(f); $('fbPrevia').style.backgroundImage = `url('${URL.createObjectURL(fb.arquivo)}')`; if (!$('fbTitulo').value) $('fbTitulo').value = f.name.replace(/\.[^.]+$/, ''); } catch (err) { toast(err.message); } };
+$('fbFechar').onclick = () => { $('fBanner').hidden = true; };
+$('fbSalvar').onclick = async () => {
+  if (!fb.id && !fb.arquivo) { toast('Escolha a imagem do banner'); return; }
+  $('fbSalvar').disabled = true; $('fbSalvar').textContent = 'Enviando…';
+  try {
+    const linha = { titulo: $('fbTitulo').value.trim(), descricao: $('fbDesc').value.trim(), inicio: $('fbIni').value || null, fim: $('fbFim').value || null, rotativo: $('fbTelao').checked, atualizado_em: new Date().toISOString() };
+    if (fb.arquivo) linha.imagem_url = await enviarImagem('banners', fb.arquivo);
+    if (fb.id) { await atualizar('banners', fb.id, linha); if (fb.arquivo) await apagarImagem(fb.imagem_url); }
+    else await inserir('banners', linha);
+    $('fBanner').hidden = true; toast('Banner publicado! Aparece na igreja em até 1 minuto.'); abrirLista();
+  } catch (e) { toast('Erro: ' + e.message); }
+  $('fbSalvar').disabled = false; $('fbSalvar').textContent = 'Salvar banner';
+};
+$('fbExcluir').onclick = async () => {
+  if (!fb.id || !confirm('Excluir este banner?')) return;
+  try { await apagar('banners', fb.id); await apagarImagem(fb.imagem_url); $('fBanner').hidden = true; toast('Banner excluído'); abrirLista(); } catch (e) { toast('Erro: ' + e.message); }
+};
+
+// ---------- aviso ----------
+let fa = null;
+function editarAviso(a) {
+  fa = { id: a ? a.id : null, titulo: a ? a.titulo : '', texto: a ? a.texto : '', inicio: a ? a.inicio : '', fim: a ? a.fim : '', rotativo: a ? a.rotativo !== false : true,
+    estilo: Object.assign({ fundoTipo: 'tema', fundoTema: 0, corTitulo: '#ffffff', corTexto: '#f4f1ea', destaque: true }, a ? a.estilo : {}), arquivo: null, imgAntiga: a && a.estilo ? a.estilo.fundoImg : null };
+  $('faTit').textContent = a ? 'Editar aviso' : 'Novo aviso';
+  $('faTitulo').value = fa.titulo; $('faTexto').value = fa.texto; $('faIni').value = fa.inicio || ''; $('faFim').value = fa.fim || ''; $('faTelao').checked = fa.rotativo;
+  $('faExcluir').hidden = !a; $('faFoto').value = '';
+  desenharAviso(); $('fAviso').hidden = false; $('fAviso').scrollTop = 0;
+}
+function desenharAviso() {
+  $('faTemas').innerHTML = TEMAS.map((t, i) => `<div data-t="${i}" class="${fa.estilo.fundoTipo === 'tema' && +fa.estilo.fundoTema === i ? 'on' : ''}" style="background:${t.css ? t.css + ',' + t.cor : t.cor}"></div>`).join('');
+  $('faPrevia').innerHTML = htmlAviso(Object.assign({}, AVISO_PADRAO, fa.estilo, { titulo: $('faTitulo').value, texto: $('faTexto').value }));
+}
+$('faTemas').addEventListener('click', e => {
+  const d = e.target.closest('[data-t]'); if (!d) return;
+  const t = TEMAS[+d.dataset.t], claro = t.texto !== '#ffffff';
+  Object.assign(fa.estilo, { fundoTipo: 'tema', fundoTema: +d.dataset.t, fundoImg: null, escurecer: 0, corTitulo: claro ? '#1b4d3a' : '#ffffff', corTexto: claro ? '#14231b' : '#f4f1ea' });
+  fa.arquivo = null; desenharAviso();
+});
+$('faFoto').onchange = async e => {
+  const f = e.target.files[0]; if (!f) return;
+  try { fa.arquivo = await reduzir(f); Object.assign(fa.estilo, { fundoTipo: 'img', fundoImg: URL.createObjectURL(fa.arquivo), corTitulo: '#ffffff', corTexto: '#ffffff', escurecer: fa.estilo.escurecer || 35 }); desenharAviso(); }
+  catch (err) { toast(err.message); }
+};
+['faTitulo', 'faTexto'].forEach(id => $(id).addEventListener('input', desenharAviso));
+$('faFechar').onclick = () => { $('fAviso').hidden = true; };
+$('faSalvar').onclick = async () => {
+  if (!$('faTitulo').value.trim()) { $('faTitulo').focus(); return; }
+  $('faSalvar').disabled = true; $('faSalvar').textContent = 'Salvando…';
+  try {
+    const estilo = Object.assign({}, fa.estilo);
+    if (fa.arquivo) estilo.fundoImg = await enviarImagem('avisos', fa.arquivo);
+    else if (estilo.fundoTipo !== 'img') estilo.fundoImg = null;
+    const linha = { titulo: $('faTitulo').value.trim(), texto: $('faTexto').value.trim(), inicio: $('faIni').value || null, fim: $('faFim').value || null, rotativo: $('faTelao').checked, estilo, atualizado_em: new Date().toISOString() };
+    if (fa.id) await atualizar('avisos', fa.id, linha); else await inserir('avisos', linha);
+    if (fa.imgAntiga && fa.imgAntiga !== estilo.fundoImg) await apagarImagem(fa.imgAntiga);
+    $('fAviso').hidden = true; toast('Aviso publicado! Aparece na igreja em até 1 minuto.'); abrirLista();
+  } catch (e) { toast('Erro: ' + e.message); }
+  $('faSalvar').disabled = false; $('faSalvar').textContent = 'Salvar aviso';
+};
+$('faExcluir').onclick = async () => {
+  if (!fa.id || !confirm('Excluir este aviso?')) return;
+  try { await apagar('avisos', fa.id); await apagarImagem(fa.imgAntiga); $('fAviso').hidden = true; toast('Aviso excluído'); abrirLista(); } catch (e) { toast('Erro: ' + e.message); }
+};
+
+// ---------- início ----------
+if (!lerConfig()) mostrar('vConfig');
+else if (sessao) abrirLista(); else mostrar('vLogin');
+</script>
+</body>
+</html>

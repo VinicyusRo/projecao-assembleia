@@ -1,29 +1,50 @@
 # Projeção Assembleia
 
-Programa de projeção para cultos: letras, hinos, Bíblia, avisos e telão automático, com app no celular. Feito para a Assembleia de Deus – Ministério Madureira e usado toda semana. Funciona no Windows e sem internet.
+Programa de projeção da **Assembleia de Deus – Ministério Madureira (Campo do Jd. Comercial-SP)**.
+Projeta letras, hinos da Harpa Cristã, Bíblia, avisos, banners, aniversariantes e visitantes no telão,
+com app no celular para Recepção, Leitura, Mídia e Controle.
 
-## Funcionalidades
+## Baixar e instalar
 
-- **Letras:** importação de arquivos .txt, busca de letras na internet (LRCLIB e Vagalume), escolha de quantas linhas por slide e corretor automático.
-- **Hinos:** hinário numerado (ex.: Harpa Cristã) com busca pelo número.
-- **Bíblia:** importa versões em JSON ou XML (Zefania/OSIS) e busca por referência, como `Jo 3:16` ou `1Co 13:4-7`.
-- **Avisos e banners:** editor em 4 passos, datas de exibição e pasta sincronizada com OneDrive ou Google Drive para enviar banners de casa.
-- **Telão automático:** passa sozinho pelos aniversariantes da semana (com foto), visitantes do dia, avisos e banners.
-- **App no celular:** pela mesma rede Wi-Fi, com funções de Recepção, Leitura, Mídia e Controle, e PIN opcional.
-- **Operação ao vivo:** faixa de miniaturas dos slides, atalhos de teclado e suporte a passador de slides USB.
-- **Backup:** automático todo dia, manual para pendrive ou nuvem e restauração.
-- **Atualização automática:** os computadores com o programa instalado recebem as novas versões sozinhos.
+1. À direita desta página, em **Releases**, abra a versão mais nova e baixe o arquivo **.exe**.
+2. Instale. Na primeira vez o Windows mostra "O Windows protegeu o computador":
+   clique em **Mais informações → Executar assim mesmo** (o programa não tem certificado pago).
+3. Depois disso o programa se atualiza sozinho: quando sair versão nova aparece o botão dourado **Atualizar** no topo.
 
-## Tecnologias
+Os dados ficam no computador, em `Documentos\ProjecaoADMadureira` (backup automático diário em
+`Documentos\ProjecaoADMadureira-Backups`).
 
-Electron · JavaScript · Node.js · HTML e CSS · GitHub Actions
+## Como publicar uma versão nova
 
-O instalador do Windows é gerado automaticamente pelo GitHub Actions a cada nova versão.
+1. Envie o arquivo `ProjecaoAssembleia-vX.zip` para este repositório (**Add file → Upload files → Commit changes**), sem descompactar.
+2. O GitHub Actions ("Gerar instalador") faz o resto, sozinho:
+   - usa o .zip enviado por último e numera a versão (1.6.N);
+   - monta o instalador e publica em **Releases** (os computadores recebem pelo botão Atualizar);
+   - descompacta o código aqui no repositório, organizado em pastas, e apaga o .zip.
+3. Acompanhe em **Actions** (fica verde quando termina).
 
-## Como instalar
+A pasta `.github/workflows` só muda à mão: quando vier um `instalador.yml` novo, abra
+`.github/workflows/instalador.yml`, clique no lápis, cole o texto novo e salve.
 
-Baixe a versão mais recente em [Releases](https://github.com/VinicyusRo/projecao-assembleia/releases) e execute o instalador. O guia completo de uso está em [LEIA-ME.txt](LEIA-ME.txt).
+O repositório precisa ser **público** para a atualização automática funcionar (não há senhas no código).
 
-## Autor
+## Estrutura
 
-Vinicyus Rodrigues · [LinkedIn](https://www.linkedin.com/in/vinicyus-rodrigues-0612492ba)
+| Pasta / arquivo | O que é |
+| --- | --- |
+| `main.js` | Processo principal (Electron): dados, janelas, servidor do celular (porta 4210), mídia online, Bíblia/Harpa online, atualizador |
+| `preload.js` | Ponte segura entre as janelas e o processo principal |
+| `src/index.html`, `renderer.js`, `style.css` | Tela do operador |
+| `src/projetor.html`, `projetor.js` | Janela do telão |
+| `src/fundo.js` | Fundos, avisos e painéis de aniversariantes e visitantes |
+| `src/movel.html` | App do celular (Recepção, Leitura, Mídia, Controle) |
+| `lib/` | Slides e Corretor (`texto.js`), Bíblia (`biblia.js`), igreja (`igreja.js`), letras online, nuvem (Supabase), atualizador, QR code |
+| `assets/` | Logo, ícones e a fonte Inter (licença OFL) |
+| `web/`, `nuvem/instalar.sql` | Página da mídia online e criação do banco no Supabase |
+| `ferramentas/preparar-versao.js` | Usado pelo GitHub para numerar a versão |
+| `docs/CONTEXTO-PROJETO.md` | Resumo completo do projeto (para continuar o desenvolvimento com o Claude) |
+| `LEIA-ME.txt` | Manual de uso |
+
+## Rodar sem instalar (para quem programa)
+
+Com o Node.js instalado: `npm install` e depois `npm start` (ou dois cliques em `INICIAR.bat`).

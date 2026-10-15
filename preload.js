@@ -8,6 +8,7 @@ contextBridge.exposeInMainWorld('api', {
   salvar: m => inv('musicas:salvar', m),
   excluir: id => inv('musicas:excluir', id),
   importar: o => inv('musicas:importar', o),
+  baixarHarpa: o => inv('harpa:baixar', o),
   // letras na internet
   buscarInternet: (q, f) => inv('internet:buscar', q, f),
   letraInternet: item => inv('internet:letra', item),
@@ -17,6 +18,9 @@ contextBridge.exposeInMainWorld('api', {
   // bíblia
   listarBiblias: () => inv('biblias:listar'),
   importarBiblia: () => inv('biblias:importar'),
+  bibliasOnline: () => inv('biblias:online'),
+  baixarBiblia: cod => inv('biblias:baixar', cod),
+  onBibliaProgresso: ouvir('biblias:progresso'),
   carregarBiblia: id => inv('biblias:carregar', id),
   renomearBiblia: (id, nome) => inv('biblias:renomear', id, nome),
   excluirBiblia: id => inv('biblias:excluir', id),
@@ -47,6 +51,8 @@ contextBridge.exposeInMainWorld('api', {
   escolherPastaBanners: () => inv('banners:escolherPasta'),
   pastaBannersPadrao: () => inv('banners:pastaPadrao'),
   salvarMetaBanner: (nome, meta) => inv('banners:salvarMeta', nome, meta),
+  novoBanner: (dataURL, nomeArquivo, meta) => inv('banners:novo', dataURL, nomeArquivo, meta),
+  definirVisibilidade: (tipo, chave, campo, valor) => inv('visibilidade:definir', tipo, chave, campo, valor),
   onBannersMudou: ouvir('banners:mudou'),
   // config e culto
   obterConfig: () => inv('config:obter'),
@@ -57,11 +63,17 @@ contextBridge.exposeInMainWorld('api', {
   enviarEstado: s => ipcRenderer.send('estado:enviar', s),
   obterEstado: () => inv('estado:obter'),
   alternarProjetor: () => inv('projetor:alternar'),
+  abrirTelao: () => inv('projetor:abrir'),
+  fecharTelao: () => inv('projetor:fechar'),
+  sairTelao: () => inv('projetor:sair'),
+  teclaTelao: k => inv('projetor:tecla', k),
+  onApresentacao: ouvir('telao:apresentacao'),
   abrirPasta: () => inv('pasta:abrir'),
   onEstado: ouvir('estado'),
   onProjetorStatus: ouvir('projetor:status'),
   // controle pelo celular
   enviarRemoto: s => ipcRenderer.send('remoto:estado', s),
+  enviarCatalogo: c => ipcRenderer.send('remoto:catalogo', c),
   infoRemoto: () => inv('remoto:info'),
   obterAcessos: () => inv('acessos:obter'),
   novoPin: perfil => inv('acessos:novoPin', perfil),
@@ -75,5 +87,12 @@ contextBridge.exposeInMainWorld('api', {
   nuvemEnviarLocais: () => inv('nuvem:enviarLocais'),
   onNuvemStatus: ouvir('nuvem:status'),
   onRemotoInfo: ouvir('remoto:info'),
-  onRemotoCmd: ouvir('remoto:cmd')
+  onRemotoCmd: ouvir('remoto:cmd'),
+  // atualização do programa
+  estadoAtualizacao: () => inv('atualizar:estado'),
+  verificarAtualizacao: () => inv('atualizar:verificar'),
+  instalarAtualizacao: () => inv('atualizar:instalar'),
+  instalarAtualizacaoManual: () => inv('atualizar:manual'),
+  onAtualizacao: ouvir('atualizar:status'),
+  onAtualizacaoFeita: ouvir('atualizar:feito')
 });

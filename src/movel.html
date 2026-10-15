@@ -1,0 +1,844 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, viewport-fit=cover">
+<meta name="theme-color" content="#1B4D3A">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-title" content="Projeção Assembleia">
+<meta name="application-name" content="Projeção Assembleia">
+<link rel="manifest" href="/manifest.json">
+<link rel="apple-touch-icon" sizes="180x180" href="/apple-touch-icon.png">
+<link rel="icon" type="image/png" sizes="192x192" href="/icone-192.png">
+<title>Projeção Assembleia</title>
+<style>
+  :root { --bg: #F4F1EA; --cd: #fff; --tx: #14231B; --mu: #5B6B62; --bd: #E4DFD3; --ac: #1B4D3A; --ac2: #2E7A58; --gs: #DDE9E1; --go: #E0B96A; --be: #EFE6D2; --er: #B4442F; }
+  * { box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
+  [hidden] { display: none !important; }
+  html, body { margin: 0; height: 100%; }
+  body { font: 16px/1.4 system-ui, -apple-system, "Segoe UI", Roboto, sans-serif; background: var(--bg); color: var(--tx); display: flex; flex-direction: column; }
+  button, input, textarea, select { font: inherit; color: inherit; }
+  header { background: var(--ac); color: #fff; padding: calc(10px + env(safe-area-inset-top)) 16px 10px; display: flex; align-items: center; gap: 10px; position: sticky; top: 0; z-index: 5; }
+  header img { width: 38px; height: 38px; border-radius: 50%; background: #fff; }
+  header .t { flex: 1; min-width: 0; }
+  header small { display: block; font-size: 10.5px; letter-spacing: .12em; color: var(--go); font-weight: 700; }
+  header b { display: block; font-size: 17px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+  header button { background: rgba(255,255,255,.14); border: 1px solid rgba(255,255,255,.25); color: #fff; border-radius: 10px; padding: 6px 12px; font-size: 14px; }
+  main { flex: 1; overflow-y: auto; padding: 14px 14px calc(24px + env(safe-area-inset-bottom)); }
+  .vista { display: none; }
+  .vista.on { display: block; }
+  h2 { font-size: 13px; letter-spacing: .1em; text-transform: uppercase; color: var(--ac); margin: 18px 2px 8px; display: flex; align-items: center; gap: 8px; }
+  h2 .n { background: var(--gs); color: var(--ac); border-radius: 10px; padding: 0 8px; font-size: 12px; letter-spacing: 0; }
+  .cartao { background: var(--cd); border: 1px solid var(--bd); border-radius: 14px; padding: 14px; margin-bottom: 10px; }
+  .btn { display: inline-flex; align-items: center; justify-content: center; gap: 6px; border: none; border-radius: 12px; padding: 13px 18px; font-weight: 600; background: var(--ac); color: #fff; }
+  .btn.sec { background: var(--cd); color: var(--tx); border: 1px solid var(--bd); }
+  .btn.perigo { background: #fbe9e5; color: var(--er); }
+  .btn.largo { width: 100%; }
+  .btn.peq { padding: 8px 12px; font-size: 14px; border-radius: 10px; }
+  label.campo { display: block; font-size: 13px; color: var(--mu); margin: 12px 2px 5px; font-weight: 600; }
+  input[type=text], input[type=search], input[type=date], input[inputmode], textarea, select { width: 100%; border: 1px solid var(--bd); border-radius: 12px; padding: 12px 14px; background: #fff; font-size: 16px; outline: none; -webkit-appearance: none; }
+  input:focus, textarea:focus { border-color: var(--ac2); box-shadow: 0 0 0 3px var(--gs); }
+  textarea { resize: vertical; min-height: 84px; }
+  .chave { display: flex; align-items: center; justify-content: space-between; gap: 12px; padding: 12px 2px; font-weight: 500; }
+  .chave input { display: none; }
+  .chave i { width: 50px; height: 30px; border-radius: 15px; background: #cfd6d1; position: relative; flex: none; transition: .2s; }
+  .chave i::after { content: ""; position: absolute; top: 3px; left: 3px; width: 24px; height: 24px; border-radius: 50%; background: #fff; transition: .2s; box-shadow: 0 1px 3px rgba(0,0,0,.2); }
+  .chave input:checked + i { background: var(--ac); }
+  .chave input:checked + i::after { left: 23px; }
+  .linha { display: flex; gap: 10px; align-items: center; }
+  .linha > * { flex: 1; min-width: 0; }
+  input[type=date] { min-width: 0; max-width: 100%; display: block; }
+  .sub { color: var(--mu); font-size: 13.5px; }
+  .vazio { text-align: center; color: var(--mu); padding: 24px 10px; }
+  .selo { display: inline-block; font-size: 11px; font-weight: 800; letter-spacing: .06em; border-radius: 6px; padding: 2px 7px; vertical-align: middle; margin-left: 6px; }
+  .selo.ouro { background: var(--go); color: #14231B; }
+  .selo.verde { background: var(--gs); color: var(--ac); }
+  .selo.cinza { background: #eceae4; color: #77736a; }
+  .pessoa { display: flex; align-items: center; gap: 12px; padding: 10px 0; border-bottom: 1px solid var(--bd); }
+  .pessoa:last-child { border-bottom: none; }
+  .av { width: 44px; height: 44px; border-radius: 50%; background: var(--go) center / cover; color: var(--ac); font-weight: 800; display: flex; align-items: center; justify-content: center; flex: none; }
+  .pessoa .info { flex: 1; min-width: 0; }
+  .pessoa b { display: block; font-size: 17px; }
+  .x { border: none; background: none; color: var(--mu); font-size: 22px; padding: 4px 8px; }
+  .toast { position: fixed; left: 50%; bottom: calc(20px + env(safe-area-inset-bottom)); transform: translate(-50%, 120px); background: var(--ac); color: #fff; border-left: 4px solid var(--go); padding: 12px 18px; border-radius: 12px; transition: transform .25s; z-index: 50; max-width: 90vw; }
+  .toast.on { transform: translate(-50%, 0); }
+
+  /* recepção no estilo do formulário do site */
+  .recepcao .olho { display: flex; align-items: center; gap: 8px; font-size: 12px; font-weight: 700; letter-spacing: .12em; text-transform: uppercase; color: var(--ac); margin-top: 6px; }
+  .recepcao .ponto { width: 8px; height: 8px; border-radius: 50%; background: var(--ac); }
+  .recepcao h1.grande { font-size: 34px; font-weight: 500; letter-spacing: -.02em; margin: 6px 0 4px; color: var(--tx); }
+  .recepcao label.campo { font-weight: 500; color: var(--mu); font-size: 14px; margin-top: 16px; }
+  .recepcao input[type=text] { border-radius: 14px; padding: 15px 16px; }
+  .opcoes { display: flex; gap: 10px; }
+  .opcoes button { flex: 1; border: 1px solid var(--bd); background: #fff; border-radius: 14px; padding: 15px 8px; font-weight: 600; font-size: 15px; }
+  .opcoes button.on { background: var(--go); border-color: var(--go); color: #14231B; }
+  .marca { display: flex; align-items: center; gap: 12px; margin: 18px 2px 6px; font-size: 16.5px; }
+  .marca input { display: none; }
+  .marca span { width: 28px; height: 28px; border-radius: 6px; border: 2px solid var(--ac); flex: none; display: flex; align-items: center; justify-content: center; }
+  .marca input:checked + span { background: var(--ac); }
+  .marca input:checked + span::after { content: ""; width: 7px; height: 13px; border: solid #fff; border-width: 0 3px 3px 0; transform: rotate(45deg) translate(-1px, -1px); }
+  .nota { margin: 8px 2px 14px; }
+  .btn.ouro { background: var(--go); color: #14231B; border-radius: 14px; padding: 16px; font-size: 16px; }
+  .sugere { position: relative; }
+  .lista-sug { position: absolute; left: 0; right: 0; top: calc(100% + 4px); background: #fff; border: 1px solid var(--bd); border-radius: 12px; box-shadow: 0 8px 24px rgba(20,35,27,.15); z-index: 4; max-height: 220px; overflow-y: auto; }
+  .lista-sug button { display: block; width: 100%; text-align: left; border: none; background: none; padding: 12px 14px; border-bottom: 1px solid var(--bd); font-size: 15.5px; }
+  .lista-sug button:last-child { border-bottom: none; }
+  .vis { display: flex; align-items: center; gap: 10px; background: #fff; border: 1px solid var(--bd); border-radius: 14px; padding: 12px 8px 12px 14px; margin-bottom: 8px; }
+  .vis.edit { border-color: var(--go); box-shadow: 0 0 0 2px rgba(224,185,106,.35); }
+  .vis .info { flex: 1; min-width: 0; }
+  .vis b { display: block; font-size: 16.5px; }
+  .vis .sub { display: block; }
+
+  /* login */
+  #login { text-align: center; padding-top: 6vh; }
+  #login img { width: 120px; height: 120px; }
+  #login h1 { font-size: 22px; margin: 14px 0 4px; color: var(--ac); }
+  .perfis { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; margin-top: 14px; text-align: left; }
+  .perfis button { background: #fff; border: 1px solid var(--bd); border-radius: 16px; padding: 18px 16px; min-height: 104px; display: flex; flex-direction: column; justify-content: flex-end; gap: 4px; box-shadow: 0 1px 2px rgba(20,35,27,.05); }
+  .perfis button:active { background: var(--gs); border-color: var(--ac2); }
+  .perfis b { font-size: 19px; color: var(--ac); }
+  .perfis span { font-size: 13.5px; color: var(--mu); line-height: 1.3; }
+  #pin { font-size: 34px; text-align: center; letter-spacing: .4em; max-width: 220px; margin: 18px auto 0; display: block; padding: 10px; }
+  #erroLogin { color: var(--er); min-height: 1.4em; margin: 10px 0; }
+
+  /* controle */
+  .slides .s { background: #fff; border: 1px solid var(--bd); border-radius: 12px; padding: 12px 14px; margin-bottom: 8px; white-space: pre-line; }
+  .slides .s.vivo { border: 2px solid var(--ac); background: var(--gs); }
+  .slides .s small { color: var(--mu); font-weight: 700; margin-right: 6px; }
+  .barra-controle { position: sticky; bottom: 0; background: var(--bg); padding: 10px 0 0; }
+  .barra-controle .linha { margin-bottom: 8px; }
+  .barra-controle .btn.on { background: var(--go); color: #14231B; }
+  .barra-controle .btn.peq { padding: 10px 12px; font-size: 14.5px; border-radius: 10px; }
+  .prox { font-size: 20px; padding: 20px; }
+  .ctl-abas { margin-bottom: 12px; }
+  .rot-cartao { display: flex; align-items: center; gap: 14px; width: 100%; text-align: left; background: var(--ac); color: #fff; border: none; border-radius: 14px; padding: 14px 16px; margin-bottom: 14px; box-shadow: 0 3px 12px rgba(27,77,58,.25); }
+  .rot-cartao .rot-ico { width: 44px; height: 44px; border-radius: 50%; background: var(--go); color: #14231B; display: flex; align-items: center; justify-content: center; font-size: 18px; flex: none; }
+  .rot-cartao b { display: block; font-size: 16.5px; }
+  .rot-cartao .sub { color: #cfe0d6; font-size: 13px; display: block; }
+  .rot-cartao.parar { background: #fff; color: var(--tx); border: 2px solid var(--go); }
+  .rot-cartao.parar .sub { color: var(--mu); }
+  .rot-cartao.parar .rot-ico { background: #fbe9e5; color: var(--er); }
+  .chips-vis { display: flex; gap: 6px; margin-top: 7px; }
+  .chips-vis button { border: 1px solid var(--bd); background: #f1efe9; color: #8b928d; border-radius: 16px; padding: 5px 11px; font-size: 13px; font-weight: 700; text-decoration: line-through; text-decoration-color: rgba(180,68,47,.7); }
+  .chips-vis button.on { background: var(--gs); border-color: #b9d3c3; color: var(--ac); text-decoration: none; }
+  .chips { display: grid; grid-template-columns: repeat(3, 1fr); gap: 8px; padding: 2px 0 10px; }
+  .chips::-webkit-scrollbar { display: none; }
+  .chips button { border: 1px solid var(--bd); background: #fff; border-radius: 20px; padding: 8px 15px; font-weight: 600; font-size: 14.5px; color: var(--mu); }
+  .chips button.on { background: var(--ac); border-color: var(--ac); color: #fff; }
+  .busca-cat { margin-bottom: 10px; }
+  .cat-it { display: flex; align-items: center; gap: 12px; width: 100%; text-align: left; background: #fff; border: 1px solid var(--bd); border-radius: 12px; padding: 12px 14px; margin-bottom: 8px; }
+  .cat-it:active { background: var(--gs); border-color: var(--ac2); }
+  .cat-it .num { min-width: 42px; height: 42px; border-radius: 10px; background: var(--gs); color: var(--ac); font-weight: 800; display: flex; align-items: center; justify-content: center; flex: none; font-size: 15px; }
+  .cat-it .info { flex: 1; min-width: 0; }
+  .cat-it b { display: block; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; font-size: 16px; }
+  .cat-it .sub { display: block; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+  .cat-it .play { color: var(--ac); font-size: 18px; flex: none; }
+  .grade-livros { display: grid; grid-template-columns: repeat(3, 1fr); gap: 6px; }
+  .grade-caps { display: grid; grid-template-columns: repeat(6, 1fr); gap: 6px; }
+  .grade-livros button, .grade-caps button { background: #fff; border: 1px solid var(--bd); border-radius: 10px; padding: 11px 4px; font-size: 13.5px; font-weight: 600; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+  .grade-caps button { padding: 13px 0; font-size: 15px; }
+  .grade-caps button.on { background: var(--ac); color: #fff; border-color: var(--ac); }
+  .grade-caps.vers button { background: #FBF7EE; }
+  .tit-vers { margin: 16px 2px 8px; padding-top: 12px; border-top: 1px solid var(--bd); }
+  #catRef { font-weight: 700; }
+  #catRef.recusa { animation: recusa .25s; border-color: #c0533e; }
+  @keyframes recusa { 0%,100% { transform: translateX(0); } 25% { transform: translateX(-5px); } 75% { transform: translateX(5px); } }
+  .ref-dica { font-size: 13.5px; color: var(--mu); margin: 6px 2px 4px; line-height: 1.6; min-height: 20px; }
+  .ref-dica b { color: var(--ac); }
+  .ref-dica .pronto { color: var(--ac); font-weight: 700; }
+  .ref-dica .sug { display: inline-block; padding: 4px 11px; border-radius: 14px; background: #fff; border: 1px solid var(--bd); margin: 3px 4px 0 0; color: var(--tx); font-weight: 600; }
+  .ref-dica .sug.on { background: var(--ac); border-color: var(--ac); color: #fff; }
+  .grade-livros button:active, .grade-caps button:active { background: var(--gs); }
+  .voltar-livros { border: none; background: none; color: var(--ac); font-weight: 700; padding: 6px 2px 10px; font-size: 15px; }
+
+  /* leitura */
+  .leitura .cartao h3 { margin: 0 0 6px; font-size: 21px; line-height: 1.2; }
+  .leitura .cartao p { margin: 0; font-size: 17.5px; white-space: pre-line; }
+  .leitura .cartao img { width: 100%; border-radius: 10px; margin-top: 10px; display: block; }
+  .leitura .datas { font-size: 13px; color: var(--mu); margin-top: 8px; }
+
+  /* mídia */
+  .seg { display: flex; background: #e6e1d5; border-radius: 12px; padding: 4px; }
+  .seg button { flex: 1; border: none; background: none; padding: 10px; border-radius: 9px; font-weight: 600; color: var(--mu); }
+  .seg button.on { background: #fff; color: var(--ac); box-shadow: 0 1px 3px rgba(0,0,0,.1); }
+  .item { display: flex; gap: 12px; align-items: center; background: #fff; border: 1px solid var(--bd); border-radius: 14px; padding: 10px; margin-bottom: 10px; }
+  .item .mini { width: 96px; aspect-ratio: 16/9; border-radius: 8px; overflow: hidden; position: relative; flex: none; background: var(--be) center / cover; }
+  .item .info { flex: 1; min-width: 0; }
+  .item b { display: block; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+  .item .sub { display: block; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+  .folha { position: fixed; inset: 0; background: var(--bg); z-index: 20; display: none; flex-direction: column; }
+  .folha.on { display: flex; }
+  .folha header { position: static; }
+  .previa { position: relative; aspect-ratio: 16/9; border-radius: 12px; overflow: hidden; background: #000 center / contain no-repeat; box-shadow: 0 3px 14px rgba(20,35,27,.2); }
+  .temas { display: grid; grid-template-columns: repeat(7, 1fr); gap: 6px; }
+  .temas div { aspect-ratio: 1; border-radius: 10px; border: 2px solid transparent; }
+  .temas div.on { border-color: var(--ac); box-shadow: 0 0 0 2px var(--go); }
+  .arquivo { display: block; text-align: center; border: 2px dashed #cbbd98; border-radius: 12px; padding: 16px; color: var(--ac); font-weight: 600; }
+  .arquivo input { display: none; }
+</style>
+</head>
+<body>
+<header id="topo">
+  <img src="/logo.png" alt="">
+  <div class="t"><small id="perfilNome">PROJEÇÃO ASSEMBLEIA</small><b id="tituloTopo">Bem-vindo</b></div>
+  <button id="sair" hidden>Trocar</button>
+</header>
+
+<main>
+  <!-- LOGIN -->
+  <section class="vista on" id="login">
+    <img src="/logo.png" alt="">
+    <h1>Projeção Assembleia</h1>
+    <div id="escolha">
+      <p class="sub">Escolha a sua função:</p>
+      <div class="perfis">
+        <button data-perfil="recepcao"><b>Recepção</b><span>Registrar visitantes</span></button>
+        <button data-perfil="leitura"><b>Leitura</b><span>Ler os avisos do culto</span></button>
+        <button data-perfil="midia"><b>Mídia</b><span>Avisos e banners</span></button>
+        <button data-perfil="controle"><b>Controle</b><span>Passar os slides do telão</span></button>
+      </div>
+    </div>
+    <div id="comPin" hidden>
+      <p class="sub">Digite o PIN do seu ministério<br>(Recepção, Leitura, Mídia ou Controle).</p>
+      <input id="pin" inputmode="numeric" maxlength="6" autocomplete="off" placeholder="••••">
+      <button class="btn" id="entrar" style="min-width:200px;margin-top:18px">Entrar</button>
+    </div>
+    <p id="erroLogin"></p>
+  </section>
+
+  <!-- CONTROLE -->
+  <section class="vista" id="v-controle">
+    <div class="seg ctl-abas" id="ctlAbas"><button class="on" data-aba="telao">No telão</button><button data-aba="projetar">Projetar</button></div>
+    <div id="pnTelao">
+    <div class="slides" id="slides"></div>
+    <div class="barra-controle">
+      <div class="linha">
+        <button class="btn sec peq" data-cmd="preto" id="cPreto">Tela preta</button>
+        <button class="btn sec peq" data-cmd="sair" id="cLogo">Sair</button>
+      </div>
+      <div class="linha" id="ctlRot" hidden>
+        <button class="btn ouro peq" data-cmd="rotPausar" id="cRotPausar">⏸ Pausar avisos</button>
+        <button class="btn sec peq" data-cmd="rotParar">■ Parar avisos</button>
+      </div>
+      <div class="linha">
+        <button class="btn sec prox" data-cmd="anterior" style="flex:.6">◀</button>
+        <button class="btn prox" data-cmd="proximo">Próximo ▶</button>
+      </div>
+    </div>
+    </div>
+    <div id="pnProjetar" hidden>
+      <button class="rot-cartao" id="catRot" data-cmd="rotIniciar">
+        <span class="rot-ico">▶</span>
+        <span class="info"><b id="catRotTit">Projetar avisos automáticos</b><span class="sub">Aniversariantes, visitantes, avisos e banners passando sozinhos</span></span>
+      </button>
+      <div class="chips" id="catTipos">
+        <button data-t="culto" class="on">Culto</button><button data-t="hinos">Hinos</button><button data-t="musicas">Letras</button>
+        <button data-t="biblia">Bíblia</button><button data-t="avisos">Avisos</button><button data-t="imagens">Imagens</button>
+      </div>
+      <div class="busca-cat" id="catBuscaBox"><input type="search" id="catBusca" placeholder="Buscar…" autocomplete="off"></div>
+      <div class="busca-cat" id="catRefBox" hidden>
+        <form class="linha" id="catRefForm"><input type="text" id="catRef" placeholder="Digite o livro: gn, jo, sl…" autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false" enterkeyhint="go"><button class="btn" style="flex:none">Projetar</button></form>
+        <div id="catDica" class="ref-dica"></div>
+      </div>
+      <div id="catLista"></div>
+    </div>
+  </section>
+
+  <!-- RECEPÇÃO -->
+  <section class="vista recepcao" id="v-recepcao">
+    <form id="formVisit" autocomplete="off">
+      <div class="olho"><span class="ponto"></span><span id="rotuloCulto">CULTO</span></div>
+      <h1 class="grande" id="tituloForm">Registrar visitante</h1>
+      <label class="campo">Nome do visitante ou família</label>
+      <input type="text" id="vNome" placeholder="Nome do visitante ou família">
+      <label class="campo">Quantas pessoas?</label>
+      <input type="text" inputmode="numeric" id="vQtd" value="1">
+      <label class="campo">O visitante foi convidado por alguém ou é de outra igreja?</label>
+      <div class="opcoes" id="vTipo">
+        <button type="button" data-v="convidado" class="on">Convidado por alguém</button>
+        <button type="button" data-v="igreja">É de outra igreja</button>
+      </div>
+      <div id="blocoQuem">
+        <label class="campo">Quem convidou?</label>
+        <div class="sugere">
+          <input type="text" id="vQuem" placeholder="Digite o nome (aparecem os membros)">
+          <div class="lista-sug" id="sugQuem" hidden></div>
+        </div>
+      </div>
+      <div id="blocoIgreja" hidden>
+        <label class="campo">Qual igreja?</label>
+        <input type="text" id="vIgreja" placeholder="Nome da igreja">
+      </div>
+      <label class="marca"><input type="checkbox" id="vPrimeira" checked><span></span> Primeira visita à igreja</label>
+      <p class="sub nota">Todos os campos são opcionais. Sem nome, o visitante aparece como “Visitante”.</p>
+      <button class="btn ouro largo" type="submit" id="vSalvar">Registrar</button>
+      <button class="btn sec largo" type="button" id="vCancelar" hidden style="margin-top:8px">Cancelar edição</button>
+    </form>
+    <h2>Registrados hoje <span class="n" id="qtdHoje">0</span></h2>
+    <div id="listaHoje"></div>
+    <p class="sub" style="text-align:center">Toque em um nome para editar. Amanhã a lista começa vazia.</p>
+  </section>
+
+  <!-- LEITURA -->
+  <section class="vista leitura" id="v-leitura">
+    <div class="linha"><span class="sub" id="lerAtualizado"></span><button class="btn sec peq" id="lerAtualizar" style="flex:none">Atualizar</button></div>
+    <h2>Avisos e banners <span class="n" id="nAvisos">0</span></h2><div id="lerAvisos"></div>
+    <h2>Aniversariantes da semana <span class="n" id="nAniv">0</span></h2><div class="cartao" id="lerAniv"></div>
+    <h2>Visitantes de hoje <span class="n" id="nVisit">0</span></h2><div class="cartao" id="lerVisit"></div>
+  </section>
+
+  <!-- MÍDIA -->
+  <section class="vista" id="v-midia">
+    <div class="seg" id="segMidia"><button data-v="avisos" class="on">Avisos</button><button data-v="banners">Banners / imagens</button></div>
+    <div id="midiaAvisos" style="margin-top:12px"></div>
+    <div id="midiaBanners" style="margin-top:12px" hidden></div>
+    <button class="btn largo" id="midiaNovo" style="margin-top:6px">+ Novo aviso</button>
+  </section>
+</main>
+
+<!-- Folha: editar aviso -->
+<div class="folha" id="folhaAviso">
+  <header><div class="t"><small>MÍDIA</small><b id="faTitulo">Novo aviso</b></div><button id="faFechar">Fechar</button></header>
+  <main>
+    <div class="previa" id="faPrevia"></div>
+    <label class="campo">Título *</label><input type="text" id="faTit" placeholder="Ex.: Santa Ceia">
+    <label class="campo">Texto / descrição</label><textarea id="faTxt" placeholder="Data, horário, local…"></textarea>
+    <label class="campo">Fundo</label>
+    <div class="temas" id="faTemas"></div>
+    <label class="arquivo" style="margin-top:10px">📷 Usar uma foto como fundo<input type="file" accept="image/*" id="faFoto"></label>
+    <div class="linha" style="margin-top:4px"><div><label class="campo">Mostrar de</label><input type="date" id="faIni"></div><div><label class="campo">até</label><input type="date" id="faFim"></div></div>
+    <p class="sub">Sem datas: fica valendo até você excluir.</p>
+    <label class="chave">Anunciar no telão (avisos automáticos) <input type="checkbox" id="faTelao" checked><i></i></label>
+    <button class="btn largo" id="faSalvar">Salvar aviso</button>
+    <button class="btn perigo largo" id="faExcluir" style="margin-top:10px">Excluir aviso</button>
+  </main>
+</div>
+
+<!-- Folha: banner -->
+<div class="folha" id="folhaBanner">
+  <header><div class="t"><small>MÍDIA</small><b id="fbTitulo">Novo banner</b></div><button id="fbFechar">Fechar</button></header>
+  <main>
+    <div class="previa" id="fbPrevia"></div>
+    <label class="arquivo" id="fbArquivo" style="margin-top:10px">📷 Escolher imagem (ex.: feita no Canva)<input type="file" accept="image/*" id="fbFoto"></label>
+    <label class="campo">Título (para leitura dos avisos)</label><input type="text" id="fbTit" placeholder="Ex.: Congresso de Jovens">
+    <label class="campo">Descrição (o que o leitor vai anunciar)</label><textarea id="fbDesc" placeholder="Ex.: Dias 10 e 11, às 19h30, com a banda…"></textarea>
+    <div class="linha"><div><label class="campo">Mostrar de</label><input type="date" id="fbIni"></div><div><label class="campo">até</label><input type="date" id="fbFim"></div></div>
+    <p class="sub">Sem datas: fica valendo até você excluir.</p>
+    <label class="chave">Anunciar no telão (avisos automáticos) <input type="checkbox" id="fbTelao" checked><i></i></label>
+    <button class="btn largo" id="fbSalvar">Salvar banner</button>
+    <button class="btn perigo largo" id="fbExcluir" style="margin-top:10px">Excluir banner</button>
+  </main>
+</div>
+
+<div class="toast" id="toast"></div>
+<script src="/fundo.js"></script>
+<script>
+const $ = id => document.getElementById(id);
+const esc = s => String(s ?? '').replace(/[&<>"]/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' }[c]));
+const NOMES = { controle: 'Controle do telão', recepcao: 'Recepção', leitura: 'Leitura dos avisos', midia: 'Mídia' };
+let pin = '', perfil = '', escolhido = '', exigirPin = false, timer = null;
+try { pin = localStorage.getItem('pin') || ''; escolhido = localStorage.getItem('perfil') || ''; } catch (_) {}
+
+function toast(m) { const t = $('toast'); t.textContent = m; t.classList.add('on'); clearTimeout(toast.h); toast.h = setTimeout(() => t.classList.remove('on'), 2500); }
+async function api(caminho, opcoes = {}) {
+  const r = await fetch(caminho, Object.assign({}, opcoes, {
+    headers: Object.assign({ 'x-pin': pin, 'x-perfil': escolhido, 'Content-Type': 'application/json' }, opcoes.headers || {}), cache: 'no-store'
+  }));
+  if (r.status === 403 && caminho === '/api/entrar') throw new Error('PIN incorreto');
+  if (r.status === 204) return null;
+  const j = await r.json().catch(() => ({}));
+  if (!r.ok) throw new Error(j.erro || 'Erro ' + r.status);
+  return j;
+}
+const img = u => u ? u + (u.includes('?') ? '&' : '?') + 'pin=' + encodeURIComponent(pin) + '&perfil=' + encodeURIComponent(escolhido) : '';
+const dataBR = d => d ? d.slice(8, 10) + '/' + d.slice(5, 7) : '';
+const periodoTxt = x => x.inicio || x.fim ? '📅 ' + (x.inicio ? 'de ' + dataBR(x.inicio) + ' ' : '') + (x.fim ? 'até ' + dataBR(x.fim) : '') : 'Sem data de término';
+const iniciais = n => String(n).trim().split(/\s+/).filter(p => p.length > 2).slice(0, 2).map(p => p[0]).join('').toUpperCase() || '?';
+
+// Reduz a foto no próprio celular antes de enviar (mais rápido e leve)
+function reduzir(arquivo, max = 1920) {
+  return new Promise((ok, erro) => {
+    const fr = new FileReader();
+    fr.onload = () => {
+      const i = new Image();
+      i.onload = () => {
+        const k = Math.min(1, max / Math.max(i.width, i.height));
+        const c = document.createElement('canvas'); c.width = Math.round(i.width * k); c.height = Math.round(i.height * k);
+        c.getContext('2d').drawImage(i, 0, 0, c.width, c.height);
+        ok(c.toDataURL('image/jpeg', 0.86));
+      };
+      i.onerror = () => erro(new Error('Não consegui abrir a imagem'));
+      i.src = fr.result;
+    };
+    fr.readAsDataURL(arquivo);
+  });
+}
+
+// ---------- entrar / sair ----------
+function mostrar(v) { document.querySelectorAll('main > .vista').forEach(x => x.classList.toggle('on', x.id === v)); }
+async function entrar() {
+  try {
+    const r = await api('/api/entrar');
+    perfil = r.perfil;
+    try { localStorage.setItem('pin', pin); localStorage.setItem('perfil', escolhido); } catch (_) {}
+    $('perfilNome').textContent = 'PROJEÇÃO ASSEMBLEIA · ' + NOMES[perfil].toUpperCase();
+    $('tituloTopo').textContent = NOMES[perfil];
+    $('sair').hidden = false;
+    mostrar('v-' + perfil);
+    clearInterval(timer);
+    if (perfil === 'controle') { atualizarControle(); timer = setInterval(atualizarControle, 1000); }
+    if (perfil === 'recepcao') carregarHoje();
+    if (perfil === 'leitura') { carregarLeitura(); timer = setInterval(carregarLeitura, 30000); }
+    if (perfil === 'midia') carregarMidia();
+  } catch (e) {
+    $('erroLogin').textContent = exigirPin ? e.message : '';
+    mostrarInicio();
+  }
+}
+function mostrarInicio() {
+  $('escolha').hidden = exigirPin; $('comPin').hidden = !exigirPin;
+  $('tituloTopo').textContent = 'Bem-vindo'; $('perfilNome').textContent = 'PROJEÇÃO ASSEMBLEIA';
+  $('sair').hidden = true; mostrar('login');
+}
+document.querySelectorAll('[data-perfil]').forEach(b => b.onclick = () => { escolhido = b.dataset.perfil; entrar(); });
+$('entrar').onclick = () => { pin = $('pin').value.trim(); entrar(); };
+$('pin').addEventListener('keydown', e => { if (e.key === 'Enter') $('entrar').click(); });
+$('sair').onclick = () => {
+  clearInterval(timer); perfil = ''; escolhido = '';
+  if (exigirPin) pin = '';
+  try { localStorage.removeItem('perfil'); if (exigirPin) localStorage.removeItem('pin'); } catch (_) {}
+  $('pin').value = ''; $('erroLogin').textContent = '';
+  mostrarInicio();
+};
+
+// ---------- controle ----------
+let ultimoControle = '';
+async function atualizarControle() {
+  let s; try { s = await api('/api/estado'); } catch (_) { $('tituloTopo').textContent = 'Sem conexão…'; return; }
+  $('tituloTopo').textContent = s.titulo || 'Nada aberto no computador';
+  $('cPreto').classList.toggle('on', s.modo === 'preto');
+  // avisos automáticos rodando: botões de pausar/parar aqui e na aba Projetar
+  const r = s.rot || { ativo: false };
+  $('ctlRot').hidden = !r.ativo;
+  $('cRotPausar').textContent = r.pausado ? '▶ Continuar avisos' : '⏸ Pausar avisos';
+  $('catRot').classList.toggle('parar', !!r.ativo);
+  $('catRot').dataset.cmd = r.ativo ? 'rotParar' : 'rotIniciar';
+  $('catRot').querySelector('.rot-ico').textContent = r.ativo ? '■' : '▶';
+  $('catRotTit').textContent = r.ativo ? 'Parar avisos automáticos' : 'Projetar avisos automáticos';
+  const k = JSON.stringify([s.titulo, s.slides, s.vivo]); if (k === ultimoControle) return; ultimoControle = k;
+  $('slides').innerHTML = s.slides.length ? s.slides.map((t, i) => `<div class="s ${i === s.vivo ? 'vivo' : ''}" data-i="${i}"><small>${i + 1}</small>${esc(t)}</div>`).join('')
+    : '<p class="vazio">Nada no telão. Toque em <b>Projetar</b> para escolher um hino, letra, versículo, aviso ou imagem.</p>';
+  const v = document.querySelector('.s.vivo'); if (v) v.scrollIntoView({ block: 'center', behavior: 'smooth' });
+}
+document.addEventListener('click', e => {
+  const b = e.target.closest('[data-cmd]'); const s = e.target.closest('.s[data-i]');
+  if (!b && !s) return;
+  api('/api/cmd', { method: 'POST', body: JSON.stringify(b ? { acao: b.dataset.cmd } : { acao: 'ir', i: +s.dataset.i }) }).catch(() => {});
+  setTimeout(atualizarControle, 150);
+  if (b && b.dataset.cmd === 'rotIniciar') { toast('Avisos automáticos no telão'); setTimeout(() => mostrarAbaCtl('telao'), 300); }
+  if (b && b.dataset.cmd === 'rotParar') toast('Avisos automáticos parados');
+});
+
+// ---------- projetar pelo celular (hinos, letras, Bíblia, avisos, imagens) ----------
+let catalogo = null, catTipo = 'culto';
+const NOMES_CAT = { culto: 'Lista do culto', hinos: 'Hinos', musicas: 'Letras', avisos: 'Avisos', imagens: 'Imagens' };
+const TIPO_ITEM = { hinos: 'musica', musicas: 'musica', avisos: 'aviso', imagens: 'imagem' };
+const semAcento = t => String(t || '').normalize('NFD').replace(/[\u0300-\u036f]/g, '').toLowerCase();
+async function carregarCatalogo() {
+  try { catalogo = await api('/api/catalogo'); } catch (_) { catalogo = null; }
+  renderCatalogo();
+}
+function itemCat(it, tipo, numero) {
+  return `<button class="cat-it" data-tipo="${esc(tipo)}" data-ref="${esc(it.ref)}">${numero != null ? `<span class="num">${esc(numero)}</span>` : ''}` +
+    `<span class="info"><b>${esc(it.titulo)}</b>${it.sub ? `<span class="sub">${esc(it.sub)}</span>` : ''}</span><span class="play">▶</span></button>`;
+}
+function renderCatalogo() {
+  const box = $('catLista');
+  $('catBuscaBox').hidden = catTipo === 'biblia' || catTipo === 'culto';
+  $('catRefBox').hidden = catTipo !== 'biblia';
+  if (!catalogo) { box.innerHTML = '<p class="vazio">Carregando…</p>'; return; }
+  if (catTipo === 'biblia') {
+    const b = catalogo.biblia;
+    if (!b) { box.innerHTML = '<p class="vazio">Nenhuma Bíblia instalada no computador.</p>'; return; }
+    if (RC.li == null) {
+      box.innerHTML = `<p class="sub" style="margin:0 2px 8px">${esc(b.nome)} · digite acima ou escolha o livro</p><div class="grade-livros">` +
+        b.livros.map((l, i) => l.caps ? `<button data-livro="${i}">${esc(l.nome)}</button>` : '').join('') + '</div>';
+    } else {
+      const l = b.livros[RC.li], capSel = RC.cap ? +RC.cap : 0, nv = capSel ? (l.vers || [])[capSel - 1] || 0 : 0;
+      box.innerHTML = `<button class="voltar-livros" data-livros>‹ Livros</button><h2 style="margin-top:0">${esc(l.nome)} · capítulo</h2><div class="grade-caps">` +
+        Array.from({ length: l.caps }, (_, k) => `<button data-cap="${k + 1}" class="${capSel === k + 1 ? 'on' : ''}">${k + 1}</button>`).join('') + '</div>' +
+        (nv ? `<h2 class="tit-vers">${esc(l.nome)} ${capSel} · toque no versículo</h2><div class="grade-caps vers">` +
+          Array.from({ length: nv }, (_, k) => `<button data-tipo="ver" data-ver="${k + 1}" class="${+RC.v1 === k + 1 ? 'on' : ''}">${k + 1}</button>`).join('') + '</div>' : '');
+    }
+    return;
+  }
+  const q = semAcento($('catBusca').value.trim());
+  let lista = catalogo[catTipo] || [];
+  if (q && catTipo !== 'culto') lista = lista.filter(it => /^\d+$/.test(q) && it.n != null ? String(it.n).startsWith(q) : semAcento(it.titulo + ' ' + (it.sub || '')).includes(q));
+  if (!lista.length) {
+    box.innerHTML = `<p class="vazio">${q ? 'Nada encontrado.' : catTipo === 'culto' ? 'A lista do culto está vazia. Monte a lista no computador ou escolha nas outras abas.' : 'Nada cadastrado em ' + NOMES_CAT[catTipo] + '.'}</p>`;
+    return;
+  }
+  box.innerHTML = lista.slice(0, 300).map(it => catTipo === 'culto' ? itemCat(it, it.tipo, null)
+    : itemCat(it, TIPO_ITEM[catTipo], catTipo === 'hinos' ? (it.n != null ? it.n : '–') : null)).join('');
+}
+function mostrarAbaCtl(aba) {
+  document.querySelectorAll('#ctlAbas button').forEach(b => b.classList.toggle('on', b.dataset.aba === aba));
+  $('pnTelao').hidden = aba !== 'telao'; $('pnProjetar').hidden = aba !== 'projetar';
+  if (aba === 'projetar') carregarCatalogo(); else { ultimoControle = ''; atualizarControle(); }
+}
+$('ctlAbas').addEventListener('click', e => { const b = e.target.closest('button'); if (b) mostrarAbaCtl(b.dataset.aba); });
+$('catTipos').addEventListener('click', e => {
+  const b = e.target.closest('button'); if (!b) return;
+  catTipo = b.dataset.t; $('catBusca').value = '';
+  document.querySelectorAll('#catTipos button').forEach(x => x.classList.toggle('on', x === b));
+  renderCatalogo();
+  if (catTipo === 'biblia') rcDica();
+});
+$('catBusca').addEventListener('input', renderCatalogo);
+async function projetarDoCelular(corpo) {
+  try { await api('/api/cmd', { method: 'POST', body: JSON.stringify(corpo) }); } catch (_) { toast('Sem conexão com o computador'); return; }
+  toast('Projetando no telão');
+  setTimeout(() => mostrarAbaCtl('telao'), 250);
+}
+$('catLista').addEventListener('click', e => {
+  if (e.target.closest('[data-livros]')) { rcZerar(); renderCatalogo(); return; }
+  const lv = e.target.closest('[data-livro]'); if (lv) { rcEscolherLivro(+lv.dataset.livro); rcMostrar(); window.scrollTo(0, 0); return; }
+  const cp = e.target.closest('[data-cap]'); if (cp) { RC.cap = cp.dataset.cap; RC.v1 = ''; RC.v2 = ''; RC.fase = 'v1'; rcMostrar(); const t = document.querySelector('.tit-vers'); if (t) t.scrollIntoView({ behavior: 'smooth', block: 'start' }); return; }
+  const vr = e.target.closest('[data-ver]'); if (vr) { RC.v1 = vr.dataset.ver; RC.v2 = ''; RC.fase = 'v1'; rcMostrar(); rcProjetar(); return; }
+  const it = e.target.closest('[data-tipo]'); if (!it) return;
+  projetarDoCelular({ acao: 'abrir', tipo: it.dataset.tipo, ref: it.dataset.ref });
+});
+// ---------- Bíblia: digitar "ge" -> Gênesis -> capítulo -> versículo (igual ao computador) ----------
+// No celular o teclado não manda as teclas uma a uma de forma confiável, então o campo compara
+// o texto novo com o anterior: letras novas são "digitadas", texto menor é "apagar".
+const RC = { fase: 'livro', txt: '', li: null, cap: '', v1: '', v2: '' };
+let rcValor = '';
+const BIB = () => catalogo && catalogo.biblia;
+const LV = i => BIB().livros[i];
+const nCapsC = li => (LV(li) || {}).caps || 0;
+const nVersC = (li, c) => ((LV(li) || {}).vers || [])[c - 1] || 0;
+const normC = t => semAcento(t).replace(/[\s.]/g, '');
+function candidatosC(q) {
+  const k = normC(q); if (!k || !BIB()) return [];
+  const L = BIB().livros.map((l, i) => Object.assign({ i }, l)).filter(l => l.caps > 0);
+  const exato = L.find(l => (k === normC(l.abrev) || (l.ap || []).includes(k) || k === normC(l.nome)) && !(k === 'jo' && l.nome === 'Jó'));
+  const lista = L.filter(l => normC(l.nome).startsWith(k) || normC(l.abrev).startsWith(k) || (l.ap || []).some(a => a.startsWith(k)));
+  if (exato) { const j = lista.indexOf(lista.find(l => l.i === exato.i)); if (j > 0) lista.unshift(lista.splice(j, 1)[0]); else if (j < 0) lista.unshift(exato); }
+  return lista;
+}
+function rcTexto() {
+  if (RC.li == null) return RC.txt;
+  let t = LV(RC.li).nome + ' ' + RC.cap;
+  if (RC.fase === 'v1' || RC.fase === 'v2') t += ':' + RC.v1;
+  if (RC.fase === 'v2') t += '-' + RC.v2;
+  return t;
+}
+function rcZerar() { Object.assign(RC, { fase: 'livro', txt: '', li: null, cap: '', v1: '', v2: '' }); rcMostrar(); }
+function rcRecusa() { const i = $('catRef'); i.classList.remove('recusa'); void i.offsetWidth; i.classList.add('recusa'); setTimeout(() => i.classList.remove('recusa'), 400); try { navigator.vibrate && navigator.vibrate(25); } catch (_) {} }
+function rcEscolherLivro(i) {
+  if (i == null || !nCapsC(i)) return false;
+  Object.assign(RC, { li: i, fase: 'cap', cap: '', v1: '', v2: '', txt: '' });
+  if (nCapsC(i) === 1) Object.assign(RC, { cap: '1', fase: 'v1' });   // Judas, Obadias…
+  return true;
+}
+function rcDigito(campo, d, max) { const n = RC[campo] + d; if (n.startsWith('0') || +n < 1 || +n > max) return false; RC[campo] = n; return true; }
+// processa 1 caractere digitado
+function rcChar(ch) {
+  const dig = /^\d$/.test(ch), letra = /^\p{L}$/u.test(ch), sep = [':', '.', ',', ' '].includes(ch);
+  if (RC.fase === 'livro') {
+    if (letra) {
+      const c = candidatosC(RC.txt + ch); if (!c.length) return rcRecusa();
+      RC.txt += ch;
+      const k = normC(RC.txt), soNome = c.filter(l => normC(l.nome).startsWith(k));
+      if (c.length === 1 || (k.length >= 3 && soNome.length === 1 && soNome[0] === c[0])) rcEscolherLivro(c[0].i);
+    } else if (dig) {
+      if (!RC.txt) { if ('123'.includes(ch)) RC.txt = ch; else rcRecusa(); }
+      else if (/^\d$/.test(RC.txt)) rcRecusa();
+      else { const c = candidatosC(RC.txt); if (!c.length || !rcEscolherLivro(c[0].i)) return rcRecusa();
+        if (RC.fase === 'v1') { if (ch !== '1') rcRecusa(); }
+        else if (!rcDigito('cap', ch, nCapsC(RC.li))) rcRecusa(); else if (+RC.cap * 10 > nCapsC(RC.li)) RC.fase = 'v1'; }
+    } else if (sep) { if (/^\d?$/.test(RC.txt)) return; const c = candidatosC(RC.txt); if (!c.length) rcRecusa(); else rcEscolherLivro(c[0].i); }
+    else rcRecusa();
+  } else if (RC.fase === 'cap') {
+    if (dig) { if (!rcDigito('cap', ch, nCapsC(RC.li))) rcRecusa(); else if (+RC.cap * 10 > nCapsC(RC.li)) RC.fase = 'v1'; }
+    else if (sep) { if (RC.cap) RC.fase = 'v1'; }
+    else rcRecusa();
+  } else if (RC.fase === 'v1') {
+    const nv = nVersC(RC.li, +RC.cap);
+    if (dig) { if (!rcDigito('v1', ch, nv)) rcRecusa(); }
+    else if (ch === '-') { if (RC.v1 && +RC.v1 < nv) RC.fase = 'v2'; else rcRecusa(); }
+    else if (!sep) rcRecusa();
+  } else if (RC.fase === 'v2') {
+    if (dig) { if (!rcDigito('v2', ch, nVersC(RC.li, +RC.cap))) rcRecusa(); }
+    else if (!sep) rcRecusa();
+  }
+}
+// apagar 1 caractere
+function rcApagar() {
+  if (RC.fase === 'v2') { if (RC.v2) RC.v2 = RC.v2.slice(0, -1); else RC.fase = 'v1'; }
+  else if (RC.fase === 'v1') { if (RC.v1) RC.v1 = RC.v1.slice(0, -1); else if (nCapsC(RC.li) === 1) { RC.li = null; RC.fase = 'livro'; RC.cap = ''; } else { RC.fase = 'cap'; if (+RC.cap * 10 > nCapsC(RC.li)) RC.cap = RC.cap.slice(0, -1); } }
+  else if (RC.fase === 'cap') { if (RC.cap) RC.cap = RC.cap.slice(0, -1); else Object.assign(RC, { fase: 'livro', li: null, txt: '' }); }
+  else RC.txt = RC.txt.slice(0, -1);
+}
+function rcDica() {
+  const d = $('catDica'); if (!BIB()) { d.innerHTML = ''; return; }
+  if (RC.fase === 'livro') {
+    const c = candidatosC(RC.txt);
+    d.innerHTML = !RC.txt ? 'Digite o livro: <b>gn</b>, <b>jo</b>, <b>sl</b>, <b>1co</b>… ou toque abaixo'
+      : c.length ? c.slice(0, 6).map((l, i) => `<span class="sug ${i === 0 ? 'on' : ''}" data-sug="${l.i}">${esc(l.nome)}</span>`).join('') : 'Nenhum livro com esse nome';
+  } else if (RC.fase === 'cap') d.innerHTML = `<b>${esc(LV(RC.li).nome)}</b> · capítulo de 1 a ${nCapsC(RC.li)}`;
+  else {
+    const nv = nVersC(RC.li, +RC.cap);
+    d.innerHTML = RC.fase === 'v1'
+      ? `<b>${esc(LV(RC.li).nome)} ${RC.cap}</b> · versículo de 1 a ${nv}` + (RC.v1 ? ' · <span class="pronto">toque em Projetar</span>' : '')
+      : `<b>${esc(LV(RC.li).nome)} ${RC.cap}:${RC.v1}</b> · até o versículo ${nv}` + (RC.v2 ? ' · <span class="pronto">toque em Projetar</span>' : '');
+  }
+}
+function rcMostrar() {
+  const i = $('catRef'); rcValor = rcTexto(); i.value = rcValor;
+  i.setAttribute('inputmode', RC.fase === 'livro' ? 'text' : 'decimal');   // depois do livro, teclado de números
+  try { if (document.activeElement === i) i.setSelectionRange(rcValor.length, rcValor.length); } catch (_) {}
+  rcDica(); if (catTipo === 'biblia') renderCatalogo();
+}
+$('catRef').addEventListener('input', () => {
+  if (!BIB()) return;
+  const v = $('catRef').value;
+  if (v.startsWith(rcValor)) { for (const ch of v.slice(rcValor.length)) rcChar(ch); }
+  else if (rcValor.startsWith(v)) { for (let n = rcValor.length - v.length; n > 0 && (RC.li != null || RC.txt); n--) rcApagar(); }
+  else { Object.assign(RC, { fase: 'livro', txt: '', li: null, cap: '', v1: '', v2: '' }); for (const ch of v) rcChar(ch); }   // colou ou trocou tudo
+  rcMostrar();
+});
+$('catRef').addEventListener('focus', () => { if (RC.li != null && RC.v1) { /* começa de novo ao tocar no campo com uma referência pronta */ } });
+$('catDica').addEventListener('click', e => { const s = e.target.closest('[data-sug]'); if (!s) return; rcEscolherLivro(+s.dataset.sug); rcMostrar(); $('catRef').focus(); });
+function rcProjetar() {
+  if (RC.fase === 'livro') { const c = candidatosC(RC.txt); if (c.length) { rcEscolherLivro(c[0].i); rcMostrar(); } else rcRecusa(); return; }
+  if (!RC.cap) { rcRecusa(); return; }
+  let t = `${LV(RC.li).nome} ${RC.cap}`;
+  if (RC.v1) t += ':' + RC.v1 + (RC.v2 && +RC.v2 > +RC.v1 ? '-' + RC.v2 : '');
+  $('catRef').blur();
+  projetarDoCelular({ acao: 'referencia', ref: t });
+}
+$('catRefForm').addEventListener('submit', e => { e.preventDefault(); rcProjetar(); });
+
+// ---------- recepção ----------
+let tipoVisit = 'convidado', editVisit = null, nomesMembros = [], visitHoje = [];
+const DIAS = ['domingo', 'segunda-feira', 'terça-feira', 'quarta-feira', 'quinta-feira', 'sexta-feira', 'sábado'];
+const MESES = ['JAN', 'FEV', 'MAR', 'ABR', 'MAI', 'JUN', 'JUL', 'AGO', 'SET', 'OUT', 'NOV', 'DEZ'];
+function definirTipo(t) {
+  tipoVisit = t;
+  document.querySelectorAll('#vTipo button').forEach(b => b.classList.toggle('on', b.dataset.v === t));
+  $('blocoQuem').hidden = t !== 'convidado'; $('blocoIgreja').hidden = t !== 'igreja';
+}
+$('vTipo').addEventListener('click', e => { const b = e.target.closest('button'); if (b) definirTipo(b.dataset.v); });
+function limparForm() {
+  editVisit = null; $('vNome').value = $('vQuem').value = $('vIgreja').value = ''; $('vQtd').value = '1';
+  $('vPrimeira').checked = true; definirTipo('convidado');
+  $('tituloForm').textContent = 'Registrar visitante'; $('vSalvar').textContent = 'Registrar'; $('vCancelar').hidden = true;
+  desenharHoje();
+}
+async function carregarHoje() {
+  const h = new Date(); $('rotuloCulto').textContent = 'Culto de ' + DIAS[h.getDay()] + ' • ' + h.getDate() + ' ' + MESES[h.getMonth()];
+  if (!nomesMembros.length) nomesMembros = await api('/api/membros/nomes').catch(() => []);
+  visitHoje = await api('/api/visitantes').catch(() => []);
+  desenharHoje();
+}
+const descVisit = v => v.tipo === 'igreja' && v.igreja ? v.igreja : v.quem ? 'Convidado(a) por ' + v.quem : (v.origem || '');
+function desenharHoje() {
+  $('qtdHoje').textContent = visitHoje.reduce((t, v) => t + (+v.qtd || 1), 0);
+  $('listaHoje').innerHTML = visitHoje.slice().reverse().map(v => `<div class="vis ${editVisit && editVisit.id === v.id ? 'edit' : ''}" data-id="${v.id}">
+      <div class="info"><b>${esc(v.nome || 'Visitante')}${(+v.qtd || 1) > 1 ? ` <span class="sub" style="display:inline">· ${v.qtd} pessoas</span>` : ''}${v.primeira ? '<span class="selo ouro">1ª VISITA</span>' : ''}</b>
+      <span class="sub">${esc([descVisit(v), v.hora].filter(Boolean).join(' · '))}</span></div>
+      <button class="x" data-del="${v.id}" aria-label="Apagar">×</button></div>`).join('') || '<p class="vazio">Ninguém registrado ainda hoje.</p>';
+}
+// sugestões de membros em "Quem convidou?"
+$('vQuem').addEventListener('input', () => {
+  const q = $('vQuem').value.trim().toLowerCase().normalize('NFD').replace(/[̀-ͯ]/g, '');
+  const r = q.length < 1 ? [] : nomesMembros.filter(n => n.toLowerCase().normalize('NFD').replace(/[̀-ͯ]/g, '').includes(q)).slice(0, 6);
+  $('sugQuem').innerHTML = r.map(n => `<button type="button">${esc(n)}</button>`).join('');
+  $('sugQuem').hidden = !r.length;
+});
+$('sugQuem').addEventListener('click', e => { const b = e.target.closest('button'); if (b) { $('vQuem').value = b.textContent; $('sugQuem').hidden = true; } });
+$('vQuem').addEventListener('blur', () => setTimeout(() => { $('sugQuem').hidden = true; }, 200));
+$('formVisit').addEventListener('submit', async e => {
+  e.preventDefault();
+  const dados = { nome: $('vNome').value, qtd: $('vQtd').value, tipo: tipoVisit, quem: $('vQuem').value, igreja: $('vIgreja').value, primeira: $('vPrimeira').checked };
+  $('vSalvar').disabled = true;
+  try {
+    if (editVisit) { await api('/api/visitantes', { method: 'PUT', body: JSON.stringify(Object.assign({ id: editVisit.id }, dados)) }); toast('Alterações salvas'); }
+    else { await api('/api/visitantes', { method: 'POST', body: JSON.stringify(dados) }); toast('Visitante registrado!'); }
+    limparForm(); await carregarHoje(); window.scrollTo(0, 0); document.querySelector('main').scrollTop = 0;
+  } catch (err) { toast(err.message); }
+  $('vSalvar').disabled = false;
+});
+$('vCancelar').onclick = limparForm;
+$('listaHoje').addEventListener('click', async e => {
+  const del = e.target.closest('[data-del]');
+  if (del) {
+    if (!confirm('Apagar este visitante?')) return;
+    await api('/api/visitantes?id=' + encodeURIComponent(del.dataset.del), { method: 'DELETE' });
+    if (editVisit && editVisit.id === del.dataset.del) limparForm();
+    return carregarHoje();
+  }
+  const item = e.target.closest('.vis'); if (!item) return;
+  const v = visitHoje.find(x => x.id === item.dataset.id); if (!v) return;
+  editVisit = v;
+  $('vNome').value = v.nome === 'Visitante' ? '' : v.nome; $('vQtd').value = v.qtd || 1;
+  definirTipo(v.tipo === 'igreja' ? 'igreja' : 'convidado');
+  $('vQuem').value = v.quem || ''; $('vIgreja').value = v.igreja || v.origem || ''; $('vPrimeira').checked = !!v.primeira;
+  $('tituloForm').textContent = 'Editar visitante'; $('vSalvar').textContent = 'Salvar alterações'; $('vCancelar').hidden = false;
+  desenharHoje(); document.querySelector('main').scrollTop = 0; window.scrollTo(0, 0);
+});
+
+// ---------- leitura ----------
+async function carregarLeitura() {
+  let d; try { d = await api('/api/leitura'); } catch (e) { $('lerAtualizado').textContent = 'Sem conexão com o computador da igreja'; return; }
+  $('lerAtualizado').textContent = 'Atualizado às ' + new Date().toTimeString().slice(0, 5);
+  const itens = d.banners.map(b => ({ titulo: b.titulo, texto: b.descricao, x: b, tipo: 'Banner' }))
+    .concat(d.avisos.map(a => ({ titulo: a.titulo, texto: a.texto, x: a, tipo: 'Aviso' })));
+  $('nAvisos').textContent = itens.length;
+  $('lerAvisos').innerHTML = itens.map(i => `<div class="cartao"><h3>${esc(i.titulo)}</h3>${i.texto ? `<p>${esc(i.texto)}</p>` : '<p class="sub">Sem descrição cadastrada.</p>'}
+      <div class="datas">${i.tipo} · ${periodoTxt(i.x)}${i.x.telao ? ' · no telão' : ''}</div></div>`).join('') || '<div class="cartao vazio">Nenhum aviso para hoje.</div>';
+  $('nAniv').textContent = d.aniversariantes.length;
+  $('lerAniv').innerHTML = d.aniversariantes.map(a => `<div class="pessoa"><span class="av" ${a.foto ? `style="background-image:url('${esc(img(a.foto))}');color:transparent"` : ''}>${esc(iniciais(a.nome))}</span>
+      <div class="info"><b>${esc(a.nome)}${a.hoje ? '<span class="selo ouro">HOJE</span>' : ''}${a.casal ? '<span class="selo verde">CASAMENTO</span>' : ''}</b><span class="sub">${esc(a.rotulo)}</span></div></div>`).join('')
+    || '<p class="vazio">Nenhum aniversário nos últimos 7 dias.</p>';
+  $('nVisit').textContent = d.visitantes.reduce((t, v) => t + v.qtd, 0);
+  $('lerVisit').innerHTML = d.visitantes.map(v => `<div class="pessoa"><span class="av">${esc(iniciais(v.nome))}</span>
+      <div class="info"><b>${esc(v.nome)}${v.qtd > 1 ? ` · ${v.qtd} pessoas` : ''}${v.primeira ? '<span class="selo ouro">1ª VISITA</span>' : ''}</b><span class="sub">${esc(v.desc)}</span></div></div>`).join('')
+    || '<p class="vazio">Nenhum visitante registrado hoje.</p>';
+}
+$('lerAtualizar').onclick = carregarLeitura;
+
+// ---------- mídia ----------
+let midia = { avisos: [], banners: [] }, abaMidia = 'avisos';
+const status = x => {
+  const h = new Date(); const hoje = h.getFullYear() + '-' + String(h.getMonth() + 1).padStart(2, '0') + '-' + String(h.getDate()).padStart(2, '0');
+  if (x.fim && x.fim < hoje) return '<span class="selo cinza">ENCERRADO</span>';
+  if (x.inicio && x.inicio > hoje) return '<span class="selo ouro">AGENDADO</span>';
+  return x.rotativo !== false ? '<span class="selo verde">NO TELÃO</span>' : '<span class="selo cinza">SÓ LEITURA</span>';
+};
+// botões rápidos: Telão (avisos automáticos) e Leitura
+const chipsVis = (tipo, chave, x) => `<div class="chips-vis" data-tipo="${tipo}" data-chave="${esc(chave)}">
+    <button type="button" data-vis="telao" class="${x.rotativo !== false ? 'on' : ''}">📺 Telão</button>
+    <button type="button" data-vis="leitura" class="${x.leitura !== false ? 'on' : ''}">📣 Leitura</button></div>`;
+async function cliqueVis(e) {
+  const b = e.target.closest('.chips-vis button'); if (!b) return false;
+  const box = b.parentElement, valor = !b.classList.contains('on');
+  b.classList.toggle('on', valor); b.disabled = true;
+  try {
+    await api('/api/visibilidade', { method: 'POST', body: JSON.stringify({ tipo: box.dataset.tipo, chave: box.dataset.chave, campo: b.dataset.vis, valor }) });
+    toast(b.dataset.vis === 'telao' ? (valor ? 'Vai aparecer no telão' : 'Fora do telão') : (valor ? 'Vai aparecer na Leitura' : 'Fora da Leitura'));
+  } catch (err) { b.classList.toggle('on', !valor); toast(err.message); }
+  b.disabled = false;
+  return true;
+}
+const avisoWeb = a => Object.assign({}, a, { fundoImg: a.imgWeb ? img(a.imgWeb) : a.fundoImg });
+async function carregarMidia() {
+  try { midia = await api('/api/midia'); } catch (e) { toast(e.message); return; }
+  $('midiaAvisos').innerHTML = midia.avisos.map(a => `<div class="item" data-aviso="${a.id}"><div class="mini">${htmlAviso(avisoWeb(a))}</div>
+      <div class="info"><b>${esc(String(a.titulo).replace(/\n/g, ' '))}</b><span class="sub">${esc(a.texto || '')}</span>${periodoTxt(a) ? `<span class="sub">${periodoTxt(a)}</span>` : ''}${chipsVis('aviso', a.id, a)}</div></div>`).join('')
+    || '<p class="vazio">Nenhum aviso ainda.</p>';
+  $('midiaBanners').innerHTML = midia.banners.map(b => `<div class="item" data-banner="${esc(b.nome)}"><div class="mini" style="background-image:url('${esc(img(b.imgWeb))}')"></div>
+      <div class="info"><b>${esc(b.titulo || b.nome)}</b><span class="sub">${esc(b.descricao || 'Sem descrição')}</span>${periodoTxt(b) ? `<span class="sub">${periodoTxt(b)}</span>` : ''}${chipsVis('banner', b.nome, b)}</div></div>`).join('')
+    || '<p class="vazio">Nenhum banner ainda.</p>';
+}
+$('segMidia').addEventListener('click', e => {
+  const b = e.target.closest('button'); if (!b) return;
+  abaMidia = b.dataset.v;
+  document.querySelectorAll('#segMidia button').forEach(x => x.classList.toggle('on', x === b));
+  $('midiaAvisos').hidden = abaMidia !== 'avisos'; $('midiaBanners').hidden = abaMidia !== 'banners';
+  $('midiaNovo').textContent = abaMidia === 'avisos' ? '+ Novo aviso' : '+ Novo banner';
+});
+$('midiaNovo').onclick = () => abaMidia === 'avisos' ? abrirAviso(null) : abrirBanner(null);
+$('midiaAvisos').addEventListener('click', async e => { if (e.target.closest('.chips-vis')) { await cliqueVis(e); return; } const i = e.target.closest('[data-aviso]'); if (i) abrirAviso(midia.avisos.find(a => a.id === i.dataset.aviso)); });
+$('midiaBanners').addEventListener('click', async e => { if (e.target.closest('.chips-vis')) { await cliqueVis(e); return; } const i = e.target.closest('[data-banner]'); if (i) abrirBanner(midia.banners.find(b => b.nome === i.dataset.banner)); });
+
+// aviso
+let fa = null;
+function abrirAviso(a) {
+  fa = Object.assign({ titulo: '', texto: '', fundoTipo: 'tema', fundoTema: 0, inicio: '', fim: '', rotativo: true, corTitulo: '#ffffff', corTexto: '#f4f1ea', destaque: true }, a ? avisoWeb(a) : {});
+  fa.imagemNova = null;
+  $('faTitulo').textContent = a ? 'Editar aviso' : 'Novo aviso';
+  $('faTit').value = String(fa.titulo || '').replace(/\n/g, ' '); $('faTxt').value = fa.texto || '';
+  $('faIni').value = fa.inicio || ''; $('faFim').value = fa.fim || ''; $('faTelao').checked = fa.rotativo !== false;
+  $('faExcluir').hidden = !a; $('faFoto').value = '';
+  desenharAviso(); $('folhaAviso').classList.add('on');
+}
+function desenharAviso() {
+  $('faTemas').innerHTML = TEMAS.map((t, i) => `<div data-t="${i}" class="${fa.fundoTipo === 'tema' && +fa.fundoTema === i ? 'on' : ''}" style="background:${t.css ? t.css + ',' + t.cor : t.cor}"></div>`).join('');
+  $('faPrevia').innerHTML = htmlAviso(fa);
+}
+$('faTemas').addEventListener('click', e => {
+  const d = e.target.closest('[data-t]'); if (!d) return;
+  const t = TEMAS[+d.dataset.t]; const claro = t.texto !== '#ffffff';
+  Object.assign(fa, { fundoTipo: 'tema', fundoTema: +d.dataset.t, imagemNova: null, corTitulo: claro ? '#1b4d3a' : '#ffffff', corTexto: claro ? '#14231b' : '#f4f1ea', escurecer: 0 });
+  desenharAviso();
+});
+$('faFoto').onchange = async e => {
+  const f = e.target.files[0]; if (!f) return;
+  try { fa.imagemNova = await reduzir(f); Object.assign(fa, { fundoTipo: 'img', fundoImg: fa.imagemNova, corTitulo: '#ffffff', corTexto: '#ffffff', escurecer: fa.escurecer || 35 }); desenharAviso(); }
+  catch (err) { toast(err.message); }
+};
+['faTit', 'faTxt'].forEach(id => $(id).addEventListener('input', () => { fa.titulo = $('faTit').value; fa.texto = $('faTxt').value; desenharAviso(); }));
+$('faFechar').onclick = () => $('folhaAviso').classList.remove('on');
+$('faSalvar').onclick = async () => {
+  if (!$('faTit').value.trim()) { $('faTit').focus(); return; }
+  $('faSalvar').disabled = true;
+  try {
+    await api('/api/avisos', { method: 'POST', body: JSON.stringify({ id: fa.id, titulo: $('faTit').value, texto: $('faTxt').value, inicio: $('faIni').value, fim: $('faFim').value,
+      rotativo: $('faTelao').checked, fundoTipo: fa.fundoTipo === 'img' ? 'img' : 'tema', fundoTema: fa.fundoTema, imagem: fa.imagemNova }) });
+    $('folhaAviso').classList.remove('on'); toast('Aviso salvo! Já está no computador da igreja.'); carregarMidia();
+  } catch (e) { toast(e.message); }
+  $('faSalvar').disabled = false;
+};
+$('faExcluir').onclick = async () => {
+  if (!fa.id || !confirm('Excluir este aviso?')) return;
+  await api('/api/avisos?id=' + encodeURIComponent(fa.id), { method: 'DELETE' });
+  $('folhaAviso').classList.remove('on'); toast('Aviso excluído'); carregarMidia();
+};
+
+// banner
+let fb = null;
+function abrirBanner(b) {
+  fb = Object.assign({ titulo: '', descricao: '', inicio: '', fim: '', rotativo: true }, b || {}); fb.imagemNova = null;
+  $('fbTitulo').textContent = b ? 'Editar banner' : 'Novo banner';
+  $('fbTit').value = fb.titulo || ''; $('fbDesc').value = fb.descricao || '';
+  $('fbIni').value = fb.inicio || ''; $('fbFim').value = fb.fim || ''; $('fbTelao').checked = fb.rotativo !== false;
+  $('fbArquivo').hidden = !!b; $('fbExcluir').hidden = !b; $('fbFoto').value = '';
+  $('fbPrevia').style.backgroundImage = b ? `url('${img(b.imgWeb)}')` : 'none';
+  $('folhaBanner').classList.add('on');
+}
+$('fbFoto').onchange = async e => {
+  const f = e.target.files[0]; if (!f) return;
+  try { fb.imagemNova = await reduzir(f); fb.nomeArquivo = f.name; $('fbPrevia').style.backgroundImage = `url('${fb.imagemNova}')`; }
+  catch (err) { toast(err.message); }
+};
+$('fbFechar').onclick = () => $('folhaBanner').classList.remove('on');
+$('fbSalvar').onclick = async () => {
+  const dados = { titulo: $('fbTit').value, descricao: $('fbDesc').value, inicio: $('fbIni').value, fim: $('fbFim').value, rotativo: $('fbTelao').checked };
+  if (!fb.nome && !fb.imagemNova) { toast('Escolha a imagem do banner'); return; }
+  $('fbSalvar').disabled = true;
+  try {
+    if (fb.nome) await api('/api/banners', { method: 'PUT', body: JSON.stringify(Object.assign({ nome: fb.nome }, dados)) });
+    else await api('/api/banners', { method: 'POST', body: JSON.stringify(Object.assign({ imagem: fb.imagemNova, nomeArquivo: fb.nomeArquivo }, dados)) });
+    $('folhaBanner').classList.remove('on'); toast('Banner salvo! Já está no computador da igreja.'); carregarMidia();
+  } catch (e) { toast(e.message); }
+  $('fbSalvar').disabled = false;
+};
+$('fbExcluir').onclick = async () => {
+  if (!fb.nome || !confirm('Excluir este banner?')) return;
+  await api('/api/banners?nome=' + encodeURIComponent(fb.nome), { method: 'DELETE' });
+  $('folhaBanner').classList.remove('on'); toast('Banner excluído'); carregarMidia();
+};
+
+// Início: o computador diz se pede PIN (por padrão, não pede)
+(async () => {
+  try { exigirPin = !!(await (await fetch('/api/inicio', { cache: 'no-store' })).json()).exigirPin; } catch (_) {}
+  if ((exigirPin && pin) || (!exigirPin && escolhido)) entrar(); else mostrarInicio();
+})();
+</script>
+</body>
+</html>

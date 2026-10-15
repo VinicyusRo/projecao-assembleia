@@ -1,4 +1,4 @@
-PROJEÇÃO ASSEMBLEIA - versão 1.1
+PROJEÇÃO ASSEMBLEIA - versão 1.6
 =================================
 Programa independente: funciona sem internet e sem site.
 
@@ -6,6 +6,14 @@ INSTALAR (Windows)
   Jeito recomendado: instalador "Projecao-Assembleia-Setup.exe" (não precisa de Node.js).
   Veja GUIA-INSTALADOR.txt para gerar o instalador de graça pelo GitHub.
   Jeito antigo (sem instalador): instale o Node.js e dê dois cliques em INICIAR.bat.
+
+ATUALIZAÇÃO AUTOMÁTICA
+  Cada vez que o GitHub gera um instalador novo, ele também publica a versão ("Release").
+  O programa procura sozinho ao abrir e a cada 3 horas, baixa em segundo plano e mostra
+  o botão dourado "Atualizar para X" no topo. Clique quando NÃO estiver projetando:
+  ele fecha, instala e abre de novo (uns 30 s). Os dados continuam.
+  Para conferir na hora: botão "Backup" > "Procurar atualização".
+  O repositório do GitHub precisa ser PÚBLICO (Settings > General > Change visibility).
 
 MÍDIA ONLINE (avisos e banners pela internet, publicados de casa): veja GUIA-MIDIA-ONLINE.txt.
 
@@ -26,17 +34,35 @@ ABAS DA ESQUERDA
              gospel em português: clique em "Ligar Vagalume" e cole a chave gratuita do site).
              Letras têm direitos autorais: use conforme a lei e a licença da igreja.
 - Hinos .... hinário numerado (ex.: Harpa Cristã). Busque pelo número: digite 15 e Enter.
+             "⬇ Harpa": baixa os 640 hinos da Harpa Cristã pela internet (uma vez; depois sem
+             internet). Cada estrofe vira um slide e o coro entra depois de cada estrofe.
+             Não mexe nos hinos que você já tem (a não ser que marque "Substituir").
+             Texto de um arquivo público feito por voluntários: confira os mais cantados.
              Importar: arquivos .txt com o número no nome, ex.: "015 - Chuvas de Graça.txt".
-- Bíblia ... "+ Versão" importa um arquivo .json ou .xml (Zefania / OSIS).
-             Digite a referência e Enter: Jo 3:16 · Sl 23 · 1Co 13:4-7 · Gn 1
+- Bíblia ... "+ Versão": BAIXAR da internet (ARC, ACF, ARA, NAA, NVI, NVT, NTLH, KJA…, fonte Bolls
+             Bible, gratuita) ou importar arquivo .json/.xml. Baixa uma vez e funciona sem internet.
+             Campo de referência inteligente: digite "ge" -> vira "Gênesis"; digite o capítulo
+             (só aceita capítulos que existem; quando não cabe mais dígito, pula sozinho para o
+             versículo); digite o versículo e ENTER projeta. ":" vai para o versículo, "-" faz
+             trecho (Jo 3:16-18). Nomes parecidos (jo = João, Josué, Jó…): ESPAÇO escolhe o
+             primeiro ou clique no nome. Backspace volta. Também dá para colar "Jo 3:16".
+             Depois do Enter o campo é liberado: setas, Espaço e passador já passam os versículos.
+             Abaixo dos capítulos aparecem os VERSÍCULOS do capítulo: clique para projetar
+             (o vermelho é o que está no telão).
+             Passou do último versículo? Vai sozinho para o 1º do próximo capítulo (e o ↑ no
+             primeiro volta para o último do capítulo anterior).
              Cada versículo vira um slide, com a referência embaixo.
              Use uma versão que a igreja tenha direito de usar (ARC, ACF, NVI etc. têm direitos autorais).
 - Avisos ... avisos editáveis em 4 passos: conteúdo, fundo (tema, cor ou imagem sua + escurecer),
              estilo do texto (cores, tamanho, posição) e datas para aparecer no "Projetar avisos".
              "Texto rápido": texto livre que vira slides na hora.
 - Imagens .. banners prontos (ex.: feitos no Canva, formato 16:9, 1920x1080).
+             "+ Adicionar imagens" abre a janela "Novo banner": arraste a imagem para o quadro
+             (ou clique nele para escolher), preencha título, descrição, datas e Salvar.
+             Também dá para ARRASTAR imagens direto para a aba Imagens: 1 imagem abre a janela
+             "Novo banner"; várias de uma vez são adicionadas direto (título = nome do arquivo).
 - Igreja ... aniversários dos últimos 7 dias e visitantes de hoje.
-             "Gerenciar membros": adicionar, editar (com FOTO do membro ou do casal), excluir
+             "Gerenciar membros" (na data é só digitar os números: 1503 vira 15/03): adicionar, editar (com FOTO do membro ou do casal), excluir
              ou importar a lista (.csv/.txt, uma pessoa por linha):
                  Maria da Silva; 15/03
                  João e Ana; 20/06; casamento
@@ -46,9 +72,9 @@ PROJETAR AVISOS (coluna do telão)
   Passa sozinho, a cada 8 segundos (ajustável): aniversariantes da semana, visitantes de hoje,
   avisos (que estiverem dentro das datas) e banners. Os aniversariantes aparecem em cartões
   do mesmo tamanho (até 4 por tela) com a foto, e a caixa "A SEGUIR • EM 06S" mostra o próximo. Escolha o que entra marcando as caixinhas.
-  Pausar, Parar, e as setas / celular avançam ou voltam. Projetar qualquer outra coisa para o rotativo.
+  Pausar (ou tecla ESPAÇO), Parar, e as setas / celular avançam ou voltam. Projetar qualquer outra coisa para o rotativo.
 
-FAIXA DE SLIDES (embaixo, estilo Holyrics): miniaturas de todos os slides da letra, hino, versículo
+FAIXA DE SLIDES (embaixo, estilo Holyrics; só aparece enquanto algo está sendo projetado): miniaturas de todos os slides da letra, hino, versículo
   ou dos avisos automáticos. O que está no telão fica com borda vermelha. Clique para projetar;
   as setas ◀ ▶ das pontas voltam e avançam.
 EDITAR HINO OU LETRA: passe o mouse na lista e clique no lápis, ou abra e aperte F2.
@@ -61,10 +87,18 @@ Em "Imagens" > "usar outra pasta", escolha uma pasta do OneDrive ou Google Drive
 instalado no computador da igreja. De casa, salve o banner do Canva nessa mesma pasta
 pelo celular ou PC: ele aparece sozinho no programa assim que a nuvem sincronizar.
 
+TELÃO NA SEGUNDA TELA (projetor/TV)
+  No Windows, aperte Windows+P e escolha "Estender" (não "Duplicar").
+  Ao projetar, o telão abre sozinho em TELA CHEIA na segunda tela, em modo apresentação:
+  sem bordas, sem cursor do mouse, por cima de tudo, e a tela não apaga nem entra
+  proteção de tela. Se ligar o projetor com o programa aberto, o telão vai sozinho para ele.
+  Com uma tela só, o telão abre numa janela (para conferir).
+
 PASSAR OS SLIDES
-  ↓ → Espaço PageDown   próximo       ↑ ← PageUp   anterior     1 a 9  vai ao slide
-  Enter  projeta o selecionado        Esc  limpar texto           B ou .  tela preta
-  L  logo                             Ctrl+F letras · Ctrl+H hinos · Ctrl+B Bíblia
+  ↓ → Espaço PageDown   próximo  (nos avisos automáticos o Espaço pausa/continua)       ↑ ← PageUp   anterior     1 a 9  vai ao slide
+  Enter ou ▶ (play)  projeta e já abre o telão sozinho (em todas as abas; não existe mais botão "Abrir telão")
+  Esc  SAIR: tira tudo e fecha o telão (volta a área de trabalho). Esc de novo: limpa o texto aberto no centro     B ou .  tela preta
+  Ctrl+F letras · Ctrl+H hinos · Ctrl+B Bíblia
   Passador de slides (clicker) USB funciona direto (usa PageUp/PageDown).
 
 APP NO CELULAR (Android e iPhone) - botão "App celular" no topo
@@ -86,10 +120,20 @@ APP NO CELULAR (Android e iPhone) - botão "App celular" no topo
    - MÍDIA:    cria, edita e exclui avisos (com tema ou foto de fundo) e banners (envia a
                imagem do celular), com datas "de / até" e a opção "Anunciar no telão".
                Desligado = só aparece para a Leitura.
-   - CONTROLE: passa os slides do telão (próximo, anterior, tela preta, logo).
+   - CONTROLE: "No telão": passa os slides (próximo, anterior, tela preta, sair).
+               "Projetar": escolhe e projeta pelo celular a lista do culto, hinos (busca pelo
+               número), letras, Bíblia (livro > capítulo ou digite Jo 3:16), avisos e imagens,
+               e o botão "Projetar avisos automáticos" (com Pausar/Continuar e Parar).
+               Bíblia no celular: igual ao computador ("ge" vira Gênesis, capítulo e versículo só
+               aceitam o que existe) ou toque no livro, no capítulo e no versículo.
   Na 1ª vez o Windows pergunta sobre a rede: clique em "Permitir".
   Fora da igreja (de casa): instale o app gratuito Tailscale no computador da igreja e no
   celular (mesma conta). Assim o celular acessa o endereço do Tailscale de qualquer lugar.
+
+BOTÕES RÁPIDOS (em cada banner da aba Imagens, em cada aviso, e no celular em Mídia):
+  [tela]  TELÃO   = aparece nos avisos automáticos ("Projetar avisos")
+  [som]   LEITURA = aparece na Leitura do celular (para quem dá os avisos)
+  Verde = ligado. Claro com risco vermelho = desligado. Um clique liga/desliga, sem abrir o editor.
 
 BANNERS x AVISOS: o banner é a arte pronta (Canva). O título e a descrição dele são só para a
   Leitura. O "aviso" é para quando não existe banner: o programa monta a arte com o texto.

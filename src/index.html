@@ -1,0 +1,582 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+<meta charset="utf-8">
+<meta http-equiv="Content-Security-Policy" content="default-src 'self'; img-src 'self' file: data: https:; style-src 'self' 'unsafe-inline'">
+<title>Projeção Assembleia</title>
+<link rel="stylesheet" href="style.css">
+</head>
+<body>
+<svg width="0" height="0" style="position:absolute">
+  <symbol id="i-play" viewBox="0 0 24 24"><path d="M7 4.5v15l12-7.5z" fill="currentColor"/></symbol>
+  <symbol id="i-next" viewBox="0 0 24 24"><path d="M5 5v14l10-7zM17 5h2.5v14H17z" fill="currentColor"/></symbol>
+  <symbol id="i-add" viewBox="0 0 24 24"><path d="M3 6h12M3 11h12M3 16h8M18 13v8M14 17h8" stroke="currentColor" stroke-width="2" fill="none" stroke-linecap="round"/></symbol>
+  <symbol id="i-edit" viewBox="0 0 24 24"><path d="M4 20h4L19 9l-4-4L4 16zM14 6l4 4" stroke="currentColor" stroke-width="2" fill="none" stroke-linejoin="round"/></symbol>
+  <symbol id="i-trash" viewBox="0 0 24 24"><path d="M4 7h16M9 7V4h6v3M6 7l1 13h10l1-13" stroke="currentColor" stroke-width="2" fill="none" stroke-linejoin="round"/></symbol>
+  <symbol id="i-check" viewBox="0 0 24 24"><path d="M4 12l5 5L20 6" stroke="currentColor" stroke-width="2.4" fill="none" stroke-linecap="round" stroke-linejoin="round"/></symbol>
+  <symbol id="i-sync" viewBox="0 0 24 24"><path d="M20 11a8 8 0 0 0-14.5-4.5L4 8M4 4v4h4M4 13a8 8 0 0 0 14.5 4.5L20 16M20 20v-4h-4" stroke="currentColor" stroke-width="2" fill="none" stroke-linecap="round"/></symbol>
+  <symbol id="i-ler" viewBox="0 0 24 24"><path d="M4 10v4h3l6 4V6L7 10H4z" stroke="currentColor" stroke-width="2" fill="none" stroke-linejoin="round"/><path d="M16.5 9a4 4 0 0 1 0 6M19 6.5a7.5 7.5 0 0 1 0 11" stroke="currentColor" stroke-width="2" fill="none" stroke-linecap="round"/></symbol>
+  <symbol id="i-screen" viewBox="0 0 24 24"><rect x="3" y="4" width="18" height="12" rx="1.5" stroke="currentColor" stroke-width="2" fill="none"/><path d="M8 20h8M12 16v4" stroke="currentColor" stroke-width="2"/></symbol>
+  <symbol id="i-up" viewBox="0 0 24 24"><path d="M6 15l6-6 6 6" stroke="currentColor" stroke-width="2.2" fill="none"/></symbol>
+  <symbol id="i-down" viewBox="0 0 24 24"><path d="M6 9l6 6 6-6" stroke="currentColor" stroke-width="2.2" fill="none"/></symbol>
+  <symbol id="i-x" viewBox="0 0 24 24"><path d="M6 6l12 12M18 6L6 18" stroke="currentColor" stroke-width="2.2"/></symbol>
+  <symbol id="i-music" viewBox="0 0 24 24"><path d="M9 18V5l11-2v13" stroke="currentColor" stroke-width="2" fill="none"/><circle cx="6" cy="18" r="3" fill="currentColor"/><circle cx="17" cy="16" r="3" fill="currentColor"/></symbol>
+  <symbol id="i-img" viewBox="0 0 24 24"><rect x="3" y="4" width="18" height="16" rx="2" stroke="currentColor" stroke-width="2" fill="none"/><circle cx="9" cy="10" r="2" fill="currentColor"/><path d="M4 18l5-5 4 4 3-3 4 4" stroke="currentColor" stroke-width="2" fill="none"/></symbol>
+  <symbol id="i-bell" viewBox="0 0 24 24"><path d="M6 16V11a6 6 0 0 1 12 0v5l2 2H4zM10 21h4" stroke="currentColor" stroke-width="2" fill="none" stroke-linejoin="round"/></symbol>
+  <symbol id="i-book" viewBox="0 0 24 24"><path d="M5 4h11a3 3 0 0 1 3 3v13H8a3 3 0 0 1-3-3zM5 17a3 3 0 0 1 3-3h11M12 7v5M9.5 9.5h5" stroke="currentColor" stroke-width="2" fill="none" stroke-linejoin="round"/></symbol>
+  <symbol id="i-copy" viewBox="0 0 24 24"><rect x="8" y="8" width="12" height="12" rx="2" stroke="currentColor" stroke-width="2" fill="none"/><path d="M16 8V5a1 1 0 0 0-1-1H5a1 1 0 0 0-1 1v10a1 1 0 0 0 1 1h3" stroke="currentColor" stroke-width="2" fill="none"/></symbol>
+  <symbol id="i-phone" viewBox="0 0 24 24"><rect x="6" y="2.5" width="12" height="19" rx="2.5" stroke="currentColor" stroke-width="2" fill="none"/><path d="M11 18h2" stroke="currentColor" stroke-width="2"/></symbol>
+  <symbol id="i-people" viewBox="0 0 24 24"><circle cx="9" cy="8" r="3.5" stroke="currentColor" stroke-width="2" fill="none"/><path d="M2.5 20a6.5 6.5 0 0 1 13 0M16 4.5a3.5 3.5 0 0 1 0 7M18 14a6 6 0 0 1 3.5 6" stroke="currentColor" stroke-width="2" fill="none" stroke-linecap="round"/></symbol>
+  <symbol id="i-cake" viewBox="0 0 24 24"><path d="M4 21V13a2 2 0 0 1 2-2h12a2 2 0 0 1 2 2v8M3 21h18M4 16c2 1.5 4 1.5 5.3 0 1.4 1.5 4 1.5 5.4 0 1.3 1.5 3.3 1.5 5.3 0M12 11V7M12 4.5v.01" stroke="currentColor" stroke-width="2" fill="none" stroke-linecap="round"/></symbol>
+  <symbol id="i-pause" viewBox="0 0 24 24"><path d="M7 5h3.5v14H7zM13.5 5H17v14h-3.5z" fill="currentColor"/></symbol>
+  <symbol id="i-stop" viewBox="0 0 24 24"><rect x="6" y="6" width="12" height="12" rx="1.5" fill="currentColor"/></symbol>
+  <symbol id="i-prev" viewBox="0 0 24 24"><path d="M19 5v14L9 12zM7 5H4.5v14H7z" fill="currentColor"/></symbol>
+  <symbol id="i-text" viewBox="0 0 24 24"><path d="M5 6h14M12 6v13M9 19h6" stroke="currentColor" stroke-width="2.2" fill="none" stroke-linecap="round"/></symbol>
+</svg>
+
+<header class="topo">
+  <div class="marca"><img src="../assets/logo.png" alt=""><div><b>Projeção Assembleia <span id="versaoApp" class="versao-app"></span></b><small>ASSEMBLEIA DE DEUS · MINISTÉRIO MADUREIRA</small></div></div>
+  <div class="topo-acoes">
+    <span id="statusTelas" class="status"></span>
+    <button id="btnRemoto" class="btn ghost" title="App no celular: Recepção, Leitura, Mídia e Controle"><svg><use href="#i-phone"/></svg><span>App celular</span></button>
+    <button id="btnNuvem" class="btn ghost" title="Avisos e banners pela internet (equipe de mídia publica de casa)"><span class="ponto-nuvem" id="pontoNuvem"></span><span>Mídia online</span></button>
+    <button id="btnAtualizar" class="btn btn-atualizar" hidden title="Instalar a nova versão do programa"><svg><use href="#i-sync"/></svg><span>Atualizar</span></button>
+    <button id="btnBackup" class="btn ghost" title="Backup, restauração e atualizações">Backup</button>
+  </div>
+</header>
+
+<main>
+  <!-- 1. Abas da esquerda -->
+  <section class="col" id="colEsq">
+    <nav class="abas" id="abasEsq">
+      <button data-aba="letras" class="on">Letras</button>
+      <button data-aba="hinos">Hinos</button>
+      <button data-aba="biblia">Bíblia</button>
+      <button data-aba="avisos">Avisos</button>
+      <button data-aba="imagens">Imagens</button>
+      <button data-aba="igreja">Igreja</button>
+    </nav>
+
+    <div class="aba on" data-aba="letras">
+      <input id="busca" type="search" placeholder="Pesquisar título ou trecho… (Ctrl+F)" autocomplete="off">
+      <ul id="lista" class="lista"></ul>
+      <button id="btnInternet" class="btn largo" title="Pesquisar letras na internet (Ctrl+I)">🔍 Pesquisar letra na internet</button>
+      <div class="barra-inf">
+        <label class="chk" title="Aplica o Corretor nas letras importadas"><input type="checkbox" id="corrigirImportar" checked> Corretor</label>
+        <span class="esp"></span>
+        <button id="btnImportar" class="btn ghost peq">Importar .txt</button>
+        <button id="btnNova" class="btn peq">+ Nova</button>
+      </div>
+      <div id="contagem" class="sub centro"></div>
+    </div>
+
+    <div class="aba" data-aba="hinos">
+      <input id="buscaHino" type="search" placeholder="Número ou nome do hino" autocomplete="off">
+      <ul id="listaHinos" class="lista"></ul>
+      <div class="barra-inf barra-hinos">
+        <label class="hinario-nome"><span>Hinário</span><input id="nomeHinario" value="Harpa Cristã" title="Nome do hinário (usado ao importar ou criar hinos)"></label>
+        <button id="btnBaixarHarpa" class="btn ghost peq" title="Baixar os 640 hinos da Harpa Cristã pela internet">⬇ Harpa</button>
+        <button id="btnImportarHinos" class="btn ghost peq" title="Arquivos .txt com o número no nome, ex.: 015 - Chuvas de Graça.txt">Importar</button>
+        <button id="btnNovoHino" class="btn peq">+ Novo</button>
+      </div>
+      <div id="contagemHinos" class="sub centro"></div>
+    </div>
+
+    <div class="aba" data-aba="biblia">
+      <div class="linha">
+        <select id="versao" style="flex:1"></select>
+        <button id="btnImportarBiblia" class="btn ghost peq" title="Baixar da internet ou importar arquivo">+ Versão</button>
+      </div>
+      <input id="buscaRef" placeholder="Digite o livro… (ex.: gn, jo, sl, 1co)" autocomplete="off" spellcheck="false">
+      <div id="refDica" class="ref-dica"></div>
+      <div id="navBiblia" class="nav-biblia"></div>
+      <div class="barra-inf">
+        <button id="btnBibliaVoltar" class="btn ghost peq" hidden>← Livros</button>
+        <span class="esp"></span>
+        <button id="btnExcluirBiblia" class="btn ghost peq" title="Remover esta versão">Remover versão</button>
+      </div>
+    </div>
+
+    <div class="aba" data-aba="avisos">
+      <ul id="listaAvisos" class="lista"></ul>
+      <div class="barra-inf">
+        <button id="btnTextoRapido" class="btn ghost peq" title="Texto livre que vira slides na hora">Texto rápido</button>
+        <span class="esp"></span><button id="btnNovoAviso" class="btn peq">+ Novo aviso</button>
+      </div>
+    </div>
+
+    <div class="aba" data-aba="imagens">
+      <div class="info-site"><span id="pastaBanners"></span> <a href="#" id="btnPastaBanners">trocar pasta</a></div>
+      <div id="gradeImagens" class="grade-img"></div>
+      <div id="soltarImagens" class="soltar-imagens" hidden><div><svg><use href="#i-img"/></svg><b>Solte aqui para adicionar</b><span>como banner</span></div></div>
+      <div class="barra-inf"><span class="esp"></span><button id="btnAddImg" class="btn peq">+ Adicionar imagens</button></div>
+    </div>
+
+    <div class="aba" data-aba="igreja">
+      <div class="cab-sec"><svg><use href="#i-cake"/></svg> Aniversários da semana <span id="periodoAniv" class="sub"></span></div>
+      <ul id="listaAniv" class="lista curta"></ul>
+      <div class="cab-sec"><svg><use href="#i-people"/></svg> Visitantes de hoje <span id="qtdVisit" class="sub"></span></div>
+      <ul id="listaVisit" class="lista curta"></ul>
+      <div class="barra-inf">
+        <button id="btnMembros" class="btn ghost peq">Gerenciar membros</button>
+        <span class="esp"></span>
+        <button id="btnNovoVisit" class="btn peq">+ Visitante</button>
+      </div>
+    </div>
+  </section>
+
+  <!-- 2. Centro: slides -->
+  <section class="col" id="colCentro">
+    <div class="ferramentas">
+      <button id="tbProjetar" title="Projetar no telão (Enter)"><svg><use href="#i-play"/></svg></button>
+      <button id="tbProximo" title="Próximo slide (↓)"><svg><use href="#i-next"/></svg></button>
+      <button id="tbAddLista" title="Adicionar à lista do culto"><svg><use href="#i-add"/></svg></button>
+      <button id="tbEditar" title="Editar letra"><svg><use href="#i-edit"/></svg></button>
+      <button id="tbDuplicar" title="Duplicar aviso"><svg><use href="#i-copy"/></svg></button>
+      <button id="tbExcluir" title="Excluir"><svg><use href="#i-trash"/></svg></button>
+    </div>
+    <div class="titulo-centro"><b id="tituloCentro">Nada selecionado</b><span id="subCentro" class="sub"></span></div>
+    <div id="slides" class="slides"><p class="vazio">Escolha uma letra, aviso ou imagem à esquerda.<br>Clique num slide para projetar · setas ↑ ↓ navegam.</p></div>
+  </section>
+
+  <!-- 3. Telão -->
+  <section class="col" id="colTelao">
+    <div class="cab-col">Telão agora</div>
+    <div id="preview">
+      <div class="pv-fundo"></div><div class="pv-texto"></div><div class="pv-logo"></div><div class="pv-img"></div><div class="pv-cartaz"></div><div class="pv-painel"></div><div class="pv-ref"></div><div class="pv-aviso"></div>
+    </div>
+    <div class="grade-botoes">
+      <button id="btnPreto" class="btn ghost">Tela preta <kbd>B</kbd></button>
+      <button id="btnLimpar" class="btn ghost" title="Fecha o telão e volta para a área de trabalho">Sair <kbd>Esc</kbd></button>
+    </div>
+
+    <div class="cartao rotativo" id="cartaoRot">
+      <div class="cab-col"><svg><use href="#i-sync"/></svg> Avisos automáticos</div>
+      <div class="linha">
+        <button id="btnRotativo" class="btn"><svg><use href="#i-play"/></svg><span>Projetar avisos</span></button>
+        <button id="btnRotPausar" class="btn ghost peq" hidden title="Pausar / continuar (Espaço)"><svg><use href="#i-pause"/></svg></button>
+        <span class="esp"></span>
+        <label class="chk">a cada <input type="number" id="rotSeg" min="3" max="60" value="8" style="width:46px;padding:3px 4px"> s</label>
+      </div>
+      <div id="rotInfo" class="sub">Aniversariantes, visitantes, avisos e banners passando sozinhos.</div>
+      <div class="linha chks-rot">
+        <label class="chk"><input type="checkbox" id="rotAniv" checked> Aniversários</label>
+        <label class="chk"><input type="checkbox" id="rotVisit" checked> Visitantes</label>
+        <label class="chk"><input type="checkbox" id="rotAvisos" checked> Avisos</label>
+        <label class="chk"><input type="checkbox" id="rotBanners" checked> Banners</label>
+      </div>
+    </div>
+
+    <div class="cartao">
+      <div class="cab-col"><svg><use href="#i-bell"/></svg> Aviso rápido (faixa)</div>
+      <textarea id="avisoTexto" rows="2" placeholder="Digite e tecle Enter…"></textarea>
+      <div class="chips">
+        <button class="chip" data-modelo="Pais de ____, favor comparecer ao berçário">Berçário</button>
+        <button class="chip" data-modelo="Veículo placa ____ está com o farol aceso">Farol aceso</button>
+        <button class="chip" data-modelo="Proprietário do veículo placa ____, favor comparecer à portaria">Veículo</button>
+      </div>
+      <div class="linha">
+        <button id="btnAvisoMostrar" class="btn peq">Mostrar</button>
+        <button id="btnAvisoOcultar" class="btn ghost peq">Ocultar</button>
+      </div>
+    </div>
+
+    <span class="esp-v"></span>
+    <button id="btnConfigExib" class="btn ghost largo"><svg><use href="#i-screen"/></svg> Configurações de exibição</button>
+  </section>
+
+  <!-- 4. Lista do culto / anotações -->
+  <section class="col" id="colLista">
+    <nav class="abas" id="abasDir">
+      <button data-aba="culto" class="on">Lista do culto</button>
+      <button data-aba="notas">Anotações</button>
+    </nav>
+    <div class="aba on" data-aba="culto">
+      <ul id="listaCulto" class="lista"></ul>
+      <div class="barra-inf">
+        <button id="btnCultoLimpar" class="btn ghost peq">Limpar lista</button>
+      </div>
+    </div>
+    <div class="aba" data-aba="notas">
+      <textarea id="anotacoes" placeholder="Ordem do culto, lembretes, nomes…"></textarea>
+    </div>
+  </section>
+
+  <!-- 5. Temas -->
+  <section class="col" id="colTemas" title="Fundos">
+    <div id="temas"></div>
+    <button id="btnAddFundo" class="tema-add" title="Adicionar imagem de fundo">+</button>
+  </section>
+</main>
+
+<footer class="tira" hidden>
+  <button id="navAnt" class="tira-seta" title="Voltar (↑)"><svg><use href="#i-prev"/></svg></button>
+  <div class="tira-info"><span id="navVivoRot">No telão</span><b id="navVivoTxt">—</b></div>
+  <div id="tiraSlides" class="tira-slides"></div>
+  <button id="navProx" class="tira-seta" title="Avançar (↓)"><svg><use href="#i-next"/></svg></button>
+</footer>
+
+<!-- Editor de letra -->
+<dialog id="editor">
+  <form method="dialog" id="formEditor">
+    <h2 id="editorTitulo">Nova letra</h2>
+    <div class="editor-grade">
+      <div class="coluna">
+        <div class="linha">
+          <input id="edTitulo" placeholder="Título" required>
+          <input id="edArtista" placeholder="Cantor / grupo (opcional)">
+        </div>
+        <div class="linha">
+          <input id="edHinario" placeholder="Hinário (ex.: Harpa Cristã) — deixe vazio para música comum">
+          <input id="edNumero" type="number" min="1" placeholder="Nº" style="width:80px;flex:none">
+        </div>
+        <textarea id="edLetra" spellcheck="false" placeholder="Cole a letra aqui.&#10;&#10;Linha em branco = novo slide.&#10;Quebra simples = mesma tela."></textarea>
+        <div class="linha">
+          <button type="button" id="btnCorretor" class="btn"><svg><use href="#i-check"/></svg> Corretor</button>
+          <button type="button" id="btnDesfazer" class="btn ghost" disabled>Desfazer</button>
+          <label class="chk"><input type="checkbox" id="opCifras" checked> Remover cifras</label>
+          <label class="chk"><input type="checkbox" id="opNomes" checked> Maiúscula em Deus, Jesus, Senhor…</label>
+        </div>
+      </div>
+      <div class="coluna">
+        <div class="cab-col">Prévia dos slides <span id="edContagem"></span></div>
+        <div id="edPrevia"></div>
+      </div>
+    </div>
+    <div class="rodape">
+      <button type="button" id="btnCancelar" class="btn ghost">Cancelar</button>
+      <button type="submit" class="btn">Salvar</button>
+    </div>
+  </form>
+</dialog>
+
+<!-- Corretor: antes e depois -->
+<dialog id="comparar">
+  <h2>Corretor: antes e depois</h2>
+  <p class="sub" id="compResumo"></p>
+  <div class="comp-grade">
+    <div><div class="cab-col">Antes</div><div id="compAntes" class="comp"></div></div>
+    <div><div class="cab-col">Depois</div><div id="compDepois" class="comp"></div></div>
+  </div>
+  <div class="rodape">
+    <button type="button" id="btnCompCancelar" class="btn ghost">Cancelar</button>
+    <button type="button" id="btnCompAplicar" class="btn">Aplicar correções</button>
+  </div>
+</dialog>
+
+<!-- Configurações de exibição -->
+<dialog id="dlgExib">
+  <h2>Configurações de exibição</h2>
+  <div class="form-grade">
+    <label>Cor do texto <input type="color" id="cfgCorTexto"></label>
+    <label>Cor de fundo <input type="color" id="cfgFundoCor"></label>
+    <label class="largo">Tamanho máximo da letra <input type="range" id="cfgFonte" min="50" max="180" step="5"><span id="cfgFonteVal"></span></label>
+    <label class="chk largo"><input type="checkbox" id="cfgMaiusculas"> Texto em MAIÚSCULAS</label>
+    <div class="largo linha">
+      <button id="btnLogoImg" class="btn ghost peq">Trocar logo</button>
+      <button id="btnLogoPadrao" class="btn ghost peq">Usar logo padrão</button>
+    </div>
+  </div>
+  <div class="rodape"><button type="button" id="btnExibFechar" class="btn">Fechar</button></div>
+</dialog>
+
+<!-- Acesso ao site -->
+<dialog id="dlgSite">
+  <form method="dialog" id="formSite">
+    <h2>Acesso ao site da igreja</h2>
+    <p class="sub">Use um usuário do site (de preferência o perfil “telão”). Os avisos e banners cadastrados lá aparecem aqui automaticamente.</p>
+    <div id="siteConectado" class="sub"></div>
+    <input id="siteUsuario" placeholder="Usuário" autocomplete="off">
+    <input id="siteSenha" type="password" placeholder="Senha">
+    <p id="siteErro" class="erro"></p>
+    <div class="rodape">
+      <button type="button" id="btnSiteSair" class="btn ghost">Desconectar</button>
+      <span class="esp"></span>
+      <button type="button" id="btnSiteCancelar" class="btn ghost">Cancelar</button>
+      <button type="submit" class="btn">Conectar</button>
+    </div>
+  </form>
+</dialog>
+
+<!-- Editor de aviso -->
+<dialog id="dlgAviso">
+  <form method="dialog" id="formAviso">
+    <h2 id="avisoTituloDlg">Novo aviso</h2>
+    <div class="aviso-grade">
+      <div class="coluna av-form">
+        <section>
+          <h3>1. Conteúdo</h3>
+          <input id="avTitulo" placeholder="Título (ex.: Santa Ceia)">
+          <textarea id="avTexto" rows="3" placeholder="Detalhes: data, horário, local…"></textarea>
+        </section>
+        <section>
+          <h3>2. Fundo</h3>
+          <div class="seg" id="avFundoTipo">
+            <button type="button" data-v="tema">Tema</button><button type="button" data-v="cor">Cor</button><button type="button" data-v="img">Imagem</button>
+          </div>
+          <div class="av-op" data-op="tema"><div id="avTemas" class="av-temas"></div></div>
+          <div class="av-op" data-op="cor"><div class="linha"><input type="color" id="avCorFundo"><span class="sub">Escolha a cor de fundo</span></div></div>
+          <div class="av-op" data-op="img"><div class="linha"><div id="avImgMini" class="av-img-mini"></div><button type="button" id="avImg" class="btn ghost peq">Escolher imagem…</button></div></div>
+          <label class="faixa-ctrl">Escurecer o fundo <input type="range" id="avEscurecer" min="0" max="80" step="5"><b id="avEscVal"></b></label>
+        </section>
+        <section>
+          <h3>3. Estilo do texto</h3>
+          <div class="linha"><span class="rot-ctrl">Cor do título</span><div class="cores" data-alvo="corTitulo"></div><input type="color" id="avCorTitulo"></div>
+          <div class="linha"><span class="rot-ctrl">Cor do texto</span><div class="cores" data-alvo="corTexto"></div><input type="color" id="avCorTexto"></div>
+          <label class="faixa-ctrl">Tamanho <input type="range" id="avTamanho" min="50" max="160" step="5"><b id="avTamVal"></b></label>
+          <div class="linha"><span class="rot-ctrl">Posição</span>
+            <div class="seg" id="avPosicao"><button type="button" data-v="centro">Centro</button><button type="button" data-v="topo">Em cima</button><button type="button" data-v="baixo">Embaixo</button><button type="button" data-v="esquerda">Esquerda</button></div>
+          </div>
+          <label class="chk"><input type="checkbox" id="avDestaque"> Linha dourada entre título e texto</label>
+        </section>
+        <section>
+          <h3>4. Avisos automáticos</h3>
+          <label class="chk"><input type="checkbox" id="avRotativo"> Anunciar no telão (Projetar avisos)</label>
+          <div class="linha"><span class="rot-ctrl">Mostrar de</span><input type="date" id="avInicio"><span class="rot-ctrl">até</span><input type="date" id="avFim"></div>
+          <p class="sub">Deixe as datas vazias para mostrar sempre.</p>
+        </section>
+      </div>
+      <div class="coluna">
+        <div class="av-previa-caixa">
+          <h3>Prévia no telão</h3>
+          <div id="avPrevia" class="av-previa"></div>
+          <p class="sub">Banner pronto do Canva? Use a aba “Imagens”. Aqui você monta o aviso na hora.</p>
+        </div>
+      </div>
+    </div>
+    <div class="rodape">
+      <button type="button" id="avCancelar" class="btn ghost">Cancelar</button>
+      <button type="submit" class="btn">Salvar aviso</button>
+    </div>
+  </form>
+</dialog>
+
+<!-- Texto rápido -->
+<dialog id="dlgTexto">
+  <h2>Texto rápido</h2>
+  <p class="sub">Linha em branco separa os slides.</p>
+  <textarea id="textoLivre" rows="8" placeholder="Ex.: Santa Ceia&#10;Domingo às 18h&#10;&#10;Traga sua família!"></textarea>
+  <div class="rodape"><button type="button" id="txtCancelar" class="btn ghost">Cancelar</button><button type="button" id="btnTextoLivre" class="btn">Enviar para o centro</button></div>
+</dialog>
+
+<!-- Membros -->
+<dialog id="dlgMembros">
+  <h2>Membros e aniversários</h2>
+  <div class="membros-grade">
+    <div class="coluna">
+      <input id="buscaMembro" type="search" placeholder="Buscar membro…">
+      <ul id="listaMembros" class="lista membros"></ul>
+      <div id="contMembros" class="sub"></div>
+    </div>
+    <div class="coluna">
+      <form id="formMembro" class="cartao">
+        <h3 id="tituloFormMembro">Adicionar membro</h3>
+        <div class="mb-linha-foto">
+          <div id="mbFoto" class="mb-foto" title="Foto do membro ou do casal"></div>
+          <div class="coluna-flex">
+            <input id="mbNome" placeholder="Nome (ou “João e Maria” para casal)">
+            <div class="linha"><input id="mbData" placeholder="Dia/mês (ex.: 15/03)" style="width:150px"><label class="chk"><input type="checkbox" id="mbCasal"> Aniversário de casamento</label></div>
+            <div class="linha"><button type="button" id="mbEscolherFoto" class="btn ghost peq">Escolher foto…</button><button type="button" id="mbTirarFoto" class="btn ghost peq" hidden>Remover foto</button></div>
+          </div>
+        </div>
+        <div class="linha"><button type="submit" class="btn peq">Salvar</button><button type="button" id="mbCancelar" class="btn ghost peq" hidden>Cancelar edição</button></div>
+      </form>
+      <div class="cartao">
+        <h3>Importar lista</h3>
+        <p class="sub">Arquivo .csv ou .txt (pode ser salvo do Excel), uma pessoa por linha:</p>
+        <pre class="exemplo">Maria da Silva; 15/03
+João Pereira; 02/11
+João e Ana; 20/06; casamento</pre>
+        <button type="button" id="btnImportarMembros" class="btn ghost peq">Importar arquivo…</button>
+      </div>
+    </div>
+  </div>
+  <div class="rodape"><button type="button" id="membrosFechar" class="btn">Fechar</button></div>
+</dialog>
+
+<!-- Mídia online (nuvem) -->
+<dialog id="dlgNuvem">
+  <form id="formNuvem">
+    <h2>Mídia online</h2>
+    <p class="sub">Com a mídia online, os avisos e banners ficam num banco de dados na internet (Supabase).
+      A equipe de mídia publica de casa e este computador baixa tudo sozinho a cada minuto.
+      Uma cópia fica guardada aqui: se a internet cair no culto, o telão continua funcionando.</p>
+    <div id="nuvemEstado" class="estado-nuvem"></div>
+    <label class="rot">Endereço do projeto (Project URL)</label>
+    <input id="nvUrl" placeholder="https://xxxxxxxx.supabase.co" autocomplete="off">
+    <label class="rot">Chave pública (anon / publishable key)</label>
+    <input id="nvChave" placeholder="eyJ... ou sb_publishable_..." autocomplete="off">
+    <div class="linha" style="margin-top:4px">
+      <div style="flex:1"><label class="rot">E-mail do computador da igreja</label><input id="nvEmail" placeholder="telao@suaigreja.com" autocomplete="off"></div>
+      <div style="flex:1"><label class="rot">Senha</label><input id="nvSenha" type="password" autocomplete="new-password"></div>
+    </div>
+    <p id="nvErro" class="erro"></p>
+    <div class="linha">
+      <button type="submit" class="btn" id="nvConectar">Conectar e ligar</button>
+      <button type="button" class="btn ghost" id="nvSync">Sincronizar agora</button>
+      <button type="button" class="btn ghost" id="nvEnviar" title="Envia os avisos e banners que já estão neste computador">Enviar dados deste PC</button>
+      <span class="esp"></span>
+      <button type="button" class="btn ghost perigo" id="nvDesligar">Desligar</button>
+    </div>
+    <p class="sub" style="margin-top:10px">Passo a passo completo no arquivo <b>GUIA-MIDIA-ONLINE.txt</b>.</p>
+    <div class="rodape"><button type="button" id="nvFechar" class="btn">Fechar</button></div>
+  </form>
+</dialog>
+
+<!-- Pesquisar letras na internet (estilo Holyrics) -->
+<dialog id="dlgInternet">
+  <div class="cab-internet"><span>🔍 Pesquisar letras na internet</span><button type="button" id="inFechar" class="x-fechar" title="Fechar">×</button></div>
+  <div class="internet-grade">
+    <div class="coluna">
+      <form id="formInternet" class="linha-busca"><input id="inBusca" type="search" placeholder="Título, artista ou trecho da letra" autocomplete="off"><button class="btn peq" type="submit">🔍</button></form>
+      <div class="filtros">
+        <label class="chk"><input type="checkbox" id="inTitulo" checked> Título</label>
+        <label class="chk"><input type="checkbox" id="inArtista" checked> Artista</label>
+        <label class="chk"><input type="checkbox" id="inLetras" checked> Letras</label>
+      </div>
+      <div class="filtros"><span class="sub">Formatação:</span>
+        <select id="inFormato"><option value="0">Padrão (estrofes)</option><option value="2">2 linhas por slide</option><option value="4" selected>4 linhas por slide</option><option value="6">6 linhas por slide</option></select>
+      </div>
+      <ul id="inLista" class="lista-internet"></ul>
+      <div id="inFontes" class="sub fontes"></div>
+    </div>
+    <div class="coluna">
+      <pre id="inPrevia" class="previa-letra">Digite o nome da música e tecle Enter.</pre>
+    </div>
+  </div>
+  <div class="rodape-internet">
+    <button type="button" id="inCriar" class="btn" disabled>Criar Música</button>
+    <button type="button" id="inCancelar" class="btn ghost">Cancelar</button>
+    <p class="sub aviso-direitos">Letras de música são protegidas por direitos autorais. Use e guarde conforme a lei vigente.
+      Fontes: LRCLIB (aberta) e Vagalume (API oficial). <a href="#" id="inChave">Configurar Vagalume</a></p>
+  </div>
+</dialog>
+
+<!-- Backup -->
+<dialog id="dlgBackup">
+  <h2>Backup dos dados</h2>
+  <div class="cartao cartao-versao">
+    <div><h3>Versão do programa</h3><p class="sub" id="atuInfo">—</p></div>
+    <button type="button" id="atuVerificar" class="btn ghost peq">Procurar atualização</button>
+  </div>
+  <p class="sub">Guarda letras, hinos, Bíblias, avisos, membros (com fotos), visitantes, imagens e configurações.</p>
+  <div class="cartao">
+    <h3>Backup automático</h3>
+    <p class="sub">Todo dia, ao abrir o programa, é feita uma cópia em Documentos\ProjecaoADMadureira-Backups (ficam os 10 últimos).</p>
+    <p>Último: <b id="bkUltimo">—</b></p>
+    <button type="button" id="bkAbrir" class="btn ghost peq">Abrir pasta dos backups</button>
+  </div>
+  <div class="cartao" style="margin-top:10px">
+    <h3>Backup no pendrive ou na nuvem</h3>
+    <p class="sub">Escolha o pendrive ou uma pasta do OneDrive/Google Drive. Recomendado uma vez por semana.</p>
+    <button type="button" id="bkFazer" class="btn peq">Fazer backup agora…</button>
+  </div>
+  <div class="cartao" style="margin-top:10px">
+    <h3>Restaurar</h3>
+    <p class="sub">Escolha uma pasta “Backup Projecao AD …”. Os dados atuais são guardados antes, por segurança.</p>
+    <button type="button" id="bkRestaurar" class="btn ghost peq">Restaurar backup…</button>
+  </div>
+  <div class="rodape"><button type="button" id="bkPasta" class="btn ghost">Abrir pasta de dados</button><span class="esp"></span><button type="button" id="bkFechar" class="btn">Fechar</button></div>
+</dialog>
+
+<!-- Harpa Cristã -->
+<dialog id="dlgHarpa">
+  <h2>Baixar a Harpa Cristã</h2>
+  <p class="sub">Os <b>640 hinos</b> numerados, baixados uma vez pela internet. Depois funcionam <b>sem internet</b>.<br>
+  Cada estrofe vira um slide e o <b>coro entra depois de cada estrofe</b>.</p>
+  <label class="chk" style="margin-top:12px;font-size:13px"><input type="checkbox" id="hpCorrigir" checked> Aplicar o Corretor (tira a pontuação do fim das linhas)</label>
+  <label class="chk" style="margin-top:8px;font-size:13px"><input type="checkbox" id="hpSubstituir"> Substituir os hinos que já existem com o mesmo número (perde as suas edições)</label>
+  <p class="sub nota-direitos" style="margin-top:12px">Texto vindo de um arquivo público feito por voluntários: confira os hinos mais cantados. A Harpa Cristã é publicada pela CPAD.</p>
+  <p id="hpStatus" class="sub" style="min-height:18px;color:var(--ac);font-weight:600"></p>
+  <div class="rodape"><button type="button" id="hpCancelar" class="btn ghost">Cancelar</button><button type="button" id="hpBaixar" class="btn">Baixar 640 hinos</button></div>
+</dialog>
+
+<!-- Versões da Bíblia -->
+<dialog id="dlgBiblias">
+  <h2>Adicionar versão da Bíblia</h2>
+  <p class="sub">Baixe uma vez pela internet; depois funciona <b>sem internet</b>. Fonte: Bolls Bible (gratuita).</p>
+  <div id="listaVersoes" class="lista-versoes"></div>
+  <p class="sub nota-direitos">A maioria das versões (ARC, ACF, NVI, NAA…) tem direitos autorais das editoras. Use conforme a licença da igreja.</p>
+  <div class="rodape"><button type="button" id="bbImportar" class="btn ghost">Importar arquivo (.json/.xml)…</button><span class="esp" style="flex:1"></span><button type="button" id="bbFechar" class="btn">Fechar</button></div>
+</dialog>
+
+<!-- Visitante -->
+<dialog id="dlgVisit">
+  <form id="formVisit" class="fv">
+    <h2 id="tituloVisit">Registrar visitante</h2>
+    <div class="fv-campo">
+      <label class="rot" for="vsNome">Nome do visitante ou família</label>
+      <input id="vsNome" placeholder="Ex.: Família Souza">
+    </div>
+    <div class="fv-campo">
+      <label class="rot">Quantas pessoas?</label>
+      <div class="fv-qtd">
+        <button type="button" data-q="-1" title="Menos">−</button>
+        <input id="vsQtd" type="number" min="1" max="99" value="1">
+        <button type="button" data-q="1" title="Mais">+</button>
+      </div>
+    </div>
+    <div class="fv-campo">
+      <label class="rot">Como chegou?</label>
+      <div class="seg fv-seg" id="vsTipo"><button type="button" data-v="convidado" class="on">Convidado por alguém</button><button type="button" data-v="igreja">É de outra igreja</button></div>
+    </div>
+    <div class="fv-campo" id="vsBlocoQuem"><label class="rot" for="vsQuem">Quem convidou?</label><input id="vsQuem" list="nomesMembros" placeholder="Digite o nome (aparecem os membros)"></div>
+    <div class="fv-campo" id="vsBlocoIgreja" hidden><label class="rot" for="vsIgreja">Qual igreja?</label><input id="vsIgreja" placeholder="Nome da igreja"></div>
+    <datalist id="nomesMembros"></datalist>
+    <label class="fv-primeira"><input type="checkbox" id="vsPrimeira" checked><span>Primeira visita à igreja</span></label>
+    <p class="sub fv-dica">Todos os campos são opcionais. Sem nome, aparece como “Visitante”.</p>
+    <div class="rodape"><button type="button" id="vsCancelar" class="btn ghost">Cancelar</button><button type="submit" class="btn">Salvar</button></div>
+  </form>
+</dialog>
+
+<!-- App do celular: acessos -->
+<dialog id="dlgRemoto">
+  <h2>App no celular (Android e iPhone)</h2>
+  <div class="remoto-grade">
+    <div class="qr-caixa">
+      <div id="qrRemoto" class="qr"></div>
+      <span>Aponte a câmera do celular</span>
+    </div>
+    <ol class="passos">
+      <li>Celular no <b>mesmo Wi-Fi</b> do computador da igreja.</li>
+      <li><b>Leia o QR code</b> com a câmera, ou digite no navegador (Chrome ou Safari):<div id="remotoUrls" class="url-remoto"></div></li>
+      <li>Escolha a função: Recepção, Leitura, Mídia ou Controle. Dica: use “Adicionar à tela inicial” para virar um ícone de app.</li>
+    </ol>
+  </div>
+  <label class="chk" style="font-size:13px"><input type="checkbox" id="chkPin"> Pedir PIN no celular (mais seguro se a rede Wi-Fi for aberta ao público)</label>
+  <table class="pins" id="tabelaPins">
+    <tr><td><b>Recepção</b><span class="sub">registrar visitantes</span></td><td class="pin" data-pin="recepcao"></td><td><button class="btn ghost peq" data-novo="recepcao">Trocar</button></td></tr>
+    <tr><td><b>Leitura</b><span class="sub">quem dá os avisos: lê tudo</span></td><td class="pin" data-pin="leitura"></td><td><button class="btn ghost peq" data-novo="leitura">Trocar</button></td></tr>
+    <tr><td><b>Mídia</b><span class="sub">criar, editar e excluir avisos e banners</span></td><td class="pin" data-pin="midia"></td><td><button class="btn ghost peq" data-novo="midia">Trocar</button></td></tr>
+    <tr><td><b>Controle</b><span class="sub">passar os slides do telão</span></td><td class="pin" data-pin="controle"></td><td><button class="btn ghost peq" data-novo="controle">Trocar</button></td></tr>
+  </table>
+  <p class="sub">Na primeira vez o Windows pode perguntar sobre a rede: clique em <b>Permitir</b>.</p>
+  <div class="rodape"><button type="button" id="remotoFechar" class="btn">Fechar</button></div>
+</dialog>
+
+<!-- Dados do banner -->
+<dialog id="dlgBanner">
+  <form id="formBanner">
+    <h2 id="bnTituloDlg">Dados do banner</h2>
+    <div id="bnPrevia" class="bn-previa"><div class="bn-solte"><svg><use href="#i-img"/></svg><b>Arraste a imagem do banner aqui</b><span>ou clique para escolher no computador</span><small>JPG, PNG ou WEBP · ideal 1920×1080 (16:9), como no Canva</small></div></div>
+    <input type="file" id="bnArquivo" accept="image/png,image/jpeg,image/webp,image/gif" hidden>
+    <label class="rot">Título (para quem lê os avisos)</label>
+    <input id="bnTitulo" placeholder="Ex.: Congresso de Jovens">
+    <label class="rot">Descrição</label>
+    <textarea id="bnDesc" rows="3" placeholder="O que deve ser anunciado: datas, horários, local…"></textarea>
+    <div class="linha" style="margin-top:8px"><span class="rot-ctrl">Mostrar de</span><input type="date" id="bnIni"><span class="rot-ctrl">até</span><input type="date" id="bnFim"></div>
+    <label class="chk" style="margin-top:8px"><input type="checkbox" id="bnTelao"> Anunciar no telão (Projetar avisos)</label>
+    <div class="rodape"><button type="button" id="bnCancelar" class="btn ghost">Cancelar</button><button type="submit" class="btn">Salvar</button></div>
+  </form>
+</dialog>
+
+<div id="toast"></div>
+<script src="erros.js"></script>
+<script src="../lib/qr.js"></script>
+<script src="../lib/texto.js"></script>
+<script src="../lib/biblia.js"></script>
+<script src="../lib/igreja.js"></script>
+<script src="fundo.js"></script>
+<script src="renderer.js"></script>
+</body>
+</html>

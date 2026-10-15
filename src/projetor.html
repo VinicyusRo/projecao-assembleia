@@ -1,0 +1,49 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+<meta charset="utf-8">
+<meta http-equiv="Content-Security-Policy" content="default-src 'self'; img-src 'self' file: data: https:; style-src 'self' 'unsafe-inline'">
+<title>Telão</title>
+<style>
+@font-face { font-family: 'Projecao Inter'; font-weight: 500; src: url('../assets/fontes/Inter-Medium.woff') format('woff'); }
+@font-face { font-family: 'Projecao Inter'; font-weight: 700; src: url('../assets/fontes/Inter-Bold.woff') format('woff'); }
+@font-face { font-family: 'Projecao Inter'; font-weight: 800; src: url('../assets/fontes/Inter-ExtraBold.woff') format('woff'); }
+
+  html, body { margin: 0; height: 100%; background: #000; overflow: hidden; cursor: none; }
+  .camada { position: absolute; inset: 0; transition: opacity .3s; }
+  #fundo { background-size: cover; background-position: center; }
+  #palco { display: flex; align-items: center; justify-content: center; }
+  #texto {
+    width: 92%; max-height: 88%; text-align: center; white-space: pre-line;
+    font-family: "Segoe UI", Arial, sans-serif; font-weight: 700; line-height: 1.18;
+    text-shadow: 0 .04em .14em rgba(0,0,0,.9), 0 0 .3em rgba(0,0,0,.5);
+    transition: opacity .15s;
+  }
+  #imagem { background: #000 center / contain no-repeat; opacity: 0; }
+  #logo { display: flex; align-items: center; justify-content: center; opacity: 0; }
+  #logo img { max-width: 62%; max-height: 72%; filter: drop-shadow(0 1vw 3vw rgba(0,0,0,.45)); }
+  #ref { position: absolute; left: 0; right: 0; bottom: 7%; text-align: center; font-family: "Segoe UI", Arial, sans-serif; font-weight: 600; font-size: 3vw; opacity: .9; transition: opacity .15s; }
+  #cartaz { opacity: 0; }
+  #aviso {
+    position: absolute; left: 0; right: 0; bottom: 0; display: none; z-index: 5;
+    background: rgba(12,36,26,.94); border-top: .35vw solid #E0B96A; color: #fff;
+    font-family: "Segoe UI", Arial, sans-serif; font-weight: 600; font-size: 3.4vw;
+    padding: 1.4vw 3vw; text-align: center; line-height: 1.2;
+  }
+  body.com-faixa [data-seguir] { bottom: 9.5vw !important; background: rgba(12,36,26,.92) !important; }
+</style>
+</head>
+<body>
+  <div id="fundo" class="camada"></div>
+  <div id="palco" class="camada"><div id="texto"></div></div>
+  <div id="ref"></div>
+  <div id="logo" class="camada"></div>
+  <div id="imagem" class="camada"></div>
+  <div id="cartaz" class="camada"></div>
+  <div id="painel" class="camada" style="opacity:0"></div>
+  <div id="aviso"></div>
+<script src="../lib/igreja.js"></script>
+<script src="fundo.js"></script>
+<script src="projetor.js"></script>
+</body>
+</html>
