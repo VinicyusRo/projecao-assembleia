@@ -92,16 +92,23 @@ jobs:
           body: Nova versão do Projeção Assembleia. Os computadores com o programa instalado recebem esta versão sozinhos (botão "Atualizar" no topo).
           files: saida/*.exe
           make_latest: true
-      - name: Limpar os .zip antigos do repositorio (fica so o usado)
+      - name: Guardar o codigo organizado no repositorio (e apagar os .zip)
         if: success() && env.ZIP_USADO != ''
         shell: pwsh
         run: |
-          $outros = @(Get-ChildItem -Path . -Recurse -Depth 2 -Filter "Projecao*.zip" | Where-Object { $_.FullName -ne $env:ZIP_USADO })
-          if (-not $outros.Count) { Write-Host "Nada para limpar."; exit 0 }
+          # o programa do .zip vira pastas e arquivos de verdade no repositorio (README, src, lib...);
+          # a pasta .github nao entra: ela so pode ser trocada a mao (regra do GitHub)
+          robocopy "$env:PASTA" "$env:GITHUB_WORKSPACE" /MIR /XD .git .github node_modules dist /XF "Projecao*.zip" /NFL /NDL /NJH /NJS /NP | Out-Null
+          if ($LASTEXITCODE -ge 8) { Write-Host "::warning::Nao consegui copiar o codigo para o repositorio (o instalador foi gerado normalmente)."; exit 0 }
+          Set-Location $env:GITHUB_WORKSPACE
+          Get-ChildItem -Path . -Recurse -Depth 2 -Filter "Projecao*.zip" | ForEach-Object { Write-Host "Apagando $($_.Name)"; Remove-Item -LiteralPath $_.FullName -Force }
           git config user.name "github-actions[bot]"
           git config user.email "41898341+github-actions[bot]@users.noreply.github.com"
-          foreach ($z in $outros) { Write-Host "Apagando $($z.Name)"; git rm -q -- "$($z.FullName)" }
-          git commit -m "Limpeza automatica: apaga .zip antigos do programa [skip ci]"
+          git add -A
+          git diff --cached --quiet
+          if ($LASTEXITCODE -eq 0) { Write-Host "Nada mudou no codigo."; exit 0 }
+          git commit -q -m "Codigo da versao $env:VERSAO (do arquivo enviado) [skip ci]"
           git pull --rebase -q
           git push
-          if ($LASTEXITCODE -ne 0) { Write-Host "::warning::Nao consegui apagar os .zip antigos (o instalador foi gerado normalmente)." ; exit 0 }
+          if ($LASTEXITCODE -ne 0) { Write-Host "::warning::Nao consegui guardar o codigo no repositorio (o instalador foi gerado normalmente)." }
+          exit 0
