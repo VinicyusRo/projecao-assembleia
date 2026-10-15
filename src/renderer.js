@@ -362,24 +362,41 @@ async function mostrarLetraInternet(i) {
 }
 function desenharPreviaInternet() {
   if (!inLetra) return;
-  const corpo = T.formatarLinhas(inLetra.letra, +$('inFormato').value);
+  const corpo = T.formatarAuto(inLetra.letra);
   $('inPrevia').textContent = `${inLetra.titulo || inSel.titulo} (${inLetra.artista || inSel.artista})\n\n${corpo}`;
 }
 $('inLista').addEventListener('click', e => { const li = e.target.closest('li[data-i]'); if (li) mostrarLetraInternet(+li.dataset.i); });
 $('inLista').addEventListener('dblclick', e => { if (e.target.closest('li[data-i]') && !$('inCriar').disabled) $('inCriar').click(); });
-$('inFormato').onchange = desenharPreviaInternet;
 $('inCriar').onclick = () => {
   if (!inLetra) return;
   $('dlgInternet').close();
   // abre o editor já preenchido: dá para usar o Corretor antes de salvar
   abrirEditor(null, { titulo: inLetra.titulo || inSel.titulo, artista: inLetra.artista || inSel.artista,
-    letra: T.formatarLinhas(inLetra.letra, +$('inFormato').value) });
+    letra: T.formatarAuto(inLetra.letra) });
   toast('Confira a letra (e use o Corretor) antes de salvar');
 };
+// janelinha com campo de texto, no lugar do prompt() (que o Electron não aceita). Devolve o texto ou null.
+function perguntar(titulo, texto, valor = '', link = null) {
+  return new Promise(resolve => {
+    const d = $('dlgPergunta'), inp = $('pgValor');
+    $('pgTitulo').textContent = titulo; $('pgTexto').textContent = texto;
+    $('pgLinkP').hidden = !link;
+    if (link) { $('pgLink').textContent = link.texto; $('pgLink').onclick = e => { e.preventDefault(); api.abrirLink(link.url); }; }
+    inp.value = valor;
+    let resposta = null;
+    $('formPergunta').onsubmit = () => { resposta = inp.value; };
+    $('pgCancelar').onclick = () => d.close();
+    d.addEventListener('close', () => resolve(resposta), { once: true });
+    d.showModal(); inp.focus(); inp.select();
+  });
+}
 $('inChave').onclick = async e => {
   e.preventDefault();
   const atual = await api.temChaveVagalume();
-  const k = prompt('Chave da API do Vagalume (gratuita).\n\nComo conseguir: crie uma conta em vagalume.com.br, abra a área de desenvolvedores/API e gere uma chave. Cole aqui:' + (atual ? '\n\n(deixe vazio para desligar)' : ''), '');
+  const k = await perguntar('Ligar o Vagalume',
+    'Cole aqui a chave da API do Vagalume (é gratuita).\nComo conseguir: entre no site do Vagalume com sua conta, abra a área de API e gere uma chave.' +
+    (atual ? '\n\nDeixe vazio e clique OK para desligar.' : ''), '',
+    { texto: 'Abrir a página de chaves do Vagalume', url: 'https://auth.vagalume.com.br/settings/api/' });
   if (k === null) return;
   const ligado = await api.chaveVagalume(k);
   $('inChave').textContent = ligado ? 'Vagalume ligado ✔' : 'Ligar Vagalume (mais letras gospel)';
@@ -678,7 +695,7 @@ $('bbImportar').onclick = async () => {
   $('dlgBiblias').close();
   const r = await api.importarBiblia();
   if (!r.ok) { if (r.erro) alert('Não consegui ler este arquivo:\n' + r.erro); return; }
-  const nome = prompt('Nome desta versão (ex.: ARC, ACF, NVI):', r.nome);
+  const nome = await perguntar('Nome da Bíblia', 'Nome desta versão (ex.: ARC, ACF, NVI):', r.nome);
   if (nome && nome.trim() && nome.trim() !== r.nome) await api.renomearBiblia(r.id, nome.trim());
   await carregarBiblias(r.id);
   toast(`Bíblia instalada: ${r.total.toLocaleString('pt-BR')} versículos`);
@@ -1286,8 +1303,15 @@ $('listaCulto').addEventListener('click', e => {
     [culto.lista[i], culto.lista[j]] = [culto.lista[j], culto.lista[i]]; salvarCulto(); renderCulto(); return;
   }
   const item = resolverItem(culto.lista[i]);
-  if (item) abrir(item); else toast('Item não encontrado (foi excluído?)');
+  if (!item) { toast('Item não encontrado (foi excluído?)'); return; }
+  // dois cliques: abre e já projeta. (O dblclick do navegador não chega aqui, porque a lista é
+  // redesenhada no 1º clique; por isso o 2º clique é contado à mão.)
+  const agora = Date.now(), duplo = cliqueCulto.i === i && agora - cliqueCulto.t < 450;
+  cliqueCulto.i = duplo ? -1 : i; cliqueCulto.t = agora;
+  if (chaveItem(atual) !== chaveItem(item)) abrir(item);
+  if (duplo) projetar(0);
 });
+const cliqueCulto = { i: -1, t: 0 };
 $('btnCultoLimpar').onclick = () => { if (culto.lista.length && confirm('Limpar a lista do culto?')) { culto.lista = []; salvarCulto(); renderCulto(); } };
 $('anotacoes').addEventListener('input', e => { culto.anotacoes = e.target.value; salvarCulto(); });
 

@@ -434,9 +434,6 @@ João e Ana; 20/06; casamento</pre>
         <label class="chk"><input type="checkbox" id="inArtista" checked> Artista</label>
         <label class="chk"><input type="checkbox" id="inLetras" checked> Letras</label>
       </div>
-      <div class="filtros"><span class="sub">Formatação:</span>
-        <select id="inFormato"><option value="0">Padrão (estrofes)</option><option value="2">2 linhas por slide</option><option value="4" selected>4 linhas por slide</option><option value="6">6 linhas por slide</option></select>
-      </div>
       <ul id="inLista" class="lista-internet"></ul>
       <div id="inFontes" class="sub fontes"></div>
     </div>
@@ -450,6 +447,17 @@ João e Ana; 20/06; casamento</pre>
     <p class="sub aviso-direitos">Letras de música são protegidas por direitos autorais. Use e guarde conforme a lei vigente.
       Fontes: LRCLIB (aberta) e Vagalume (API oficial). <a href="#" id="inChave">Configurar Vagalume</a></p>
   </div>
+</dialog>
+
+<!-- Pergunta com campo de texto (o Electron não tem prompt()) -->
+<dialog id="dlgPergunta" style="width:min(460px,92vw)">
+  <form id="formPergunta" method="dialog">
+    <h2 id="pgTitulo"></h2>
+    <p class="sub" id="pgTexto" style="white-space:pre-line"></p>
+    <p class="sub" id="pgLinkP" style="margin:4px 0 12px" hidden><a href="#" id="pgLink"></a></p>
+    <input id="pgValor" type="text" autocomplete="off" style="width:100%">
+    <div class="rodape"><button type="button" id="pgCancelar" class="btn ghost">Cancelar</button><button type="submit" class="btn">OK</button></div>
+  </form>
 </dialog>
 
 <!-- Backup -->
