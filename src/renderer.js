@@ -276,22 +276,12 @@ async function carregarMusicas() {
 }
 const ehHino = m => !!(m.hinario && m.hinario.trim());
 function destacar(texto, campo) {
-  const q = T.normalizarBusca($(campo).value.trim());
-  const i = q ? T.normalizarBusca(texto).indexOf(q) : -1;
-  if (i < 0) return esc(texto);
-  return esc(texto.slice(0, i)) + '<mark>' + esc(texto.slice(i, i + q.length)) + '</mark>' + esc(texto.slice(i + q.length));
+  const q = $(campo).value.trim();
+  if (!q) return esc(texto);
+  return T.pedacosDestaque(texto, q).map(p => p.marca ? '<mark>' + esc(p.txt) + '</mark>' : esc(p.txt)).join('');
 }
-function buscarEm(lista, q) {
-  q = T.normalizarBusca(q.trim());
-  if (!q) return lista.map(m => ({ m }));
-  const out = [];
-  for (const m of lista) {
-    if (T.normalizarBusca(m.titulo + ' ' + (m.artista || '')).includes(q)) { out.push({ m, t: 1 }); continue; }
-    const linha = m.letra.split('\n').find(l => T.normalizarBusca(l).includes(q));
-    if (linha) out.push({ m, trecho: linha.trim() });
-  }
-  return out.sort((a, b) => (b.t || 0) - (a.t || 0));
-}
+// procura no título e também no meio da letra (ignora pontuação, quebra de linha e 1 letra errada)
+const buscarEm = (lista, q) => T.buscarMusicas(lista, q);
 function renderLetras() {
   const base = musicas.filter(m => !ehHino(m)).sort((a, b) => a.titulo.localeCompare(b.titulo, 'pt-BR'));
   const r = buscarEm(base, $('busca').value);
