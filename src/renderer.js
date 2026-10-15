@@ -362,18 +362,17 @@ async function mostrarLetraInternet(i) {
 }
 function desenharPreviaInternet() {
   if (!inLetra) return;
-  const corpo = T.formatarLinhas(inLetra.letra, +$('inFormato').value);
+  const corpo = T.formatarAuto(inLetra.letra);
   $('inPrevia').textContent = `${inLetra.titulo || inSel.titulo} (${inLetra.artista || inSel.artista})\n\n${corpo}`;
 }
 $('inLista').addEventListener('click', e => { const li = e.target.closest('li[data-i]'); if (li) mostrarLetraInternet(+li.dataset.i); });
 $('inLista').addEventListener('dblclick', e => { if (e.target.closest('li[data-i]') && !$('inCriar').disabled) $('inCriar').click(); });
-$('inFormato').onchange = desenharPreviaInternet;
 $('inCriar').onclick = () => {
   if (!inLetra) return;
   $('dlgInternet').close();
   // abre o editor já preenchido: dá para usar o Corretor antes de salvar
   abrirEditor(null, { titulo: inLetra.titulo || inSel.titulo, artista: inLetra.artista || inSel.artista,
-    letra: T.formatarLinhas(inLetra.letra, +$('inFormato').value) });
+    letra: T.formatarAuto(inLetra.letra) });
   toast('Confira a letra (e use o Corretor) antes de salvar');
 };
 // janelinha com campo de texto, no lugar do prompt() (que o Electron não aceita). Devolve o texto ou null.
@@ -1304,8 +1303,15 @@ $('listaCulto').addEventListener('click', e => {
     [culto.lista[i], culto.lista[j]] = [culto.lista[j], culto.lista[i]]; salvarCulto(); renderCulto(); return;
   }
   const item = resolverItem(culto.lista[i]);
-  if (item) abrir(item); else toast('Item não encontrado (foi excluído?)');
+  if (!item) { toast('Item não encontrado (foi excluído?)'); return; }
+  // dois cliques: abre e já projeta. (O dblclick do navegador não chega aqui, porque a lista é
+  // redesenhada no 1º clique; por isso o 2º clique é contado à mão.)
+  const agora = Date.now(), duplo = cliqueCulto.i === i && agora - cliqueCulto.t < 450;
+  cliqueCulto.i = duplo ? -1 : i; cliqueCulto.t = agora;
+  if (chaveItem(atual) !== chaveItem(item)) abrir(item);
+  if (duplo) projetar(0);
 });
+const cliqueCulto = { i: -1, t: 0 };
 $('btnCultoLimpar').onclick = () => { if (culto.lista.length && confirm('Limpar a lista do culto?')) { culto.lista = []; salvarCulto(); renderCulto(); } };
 $('anotacoes').addEventListener('input', e => { culto.anotacoes = e.target.value; salvarCulto(); });
 
