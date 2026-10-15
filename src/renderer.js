@@ -376,10 +376,28 @@ $('inCriar').onclick = () => {
     letra: T.formatarLinhas(inLetra.letra, +$('inFormato').value) });
   toast('Confira a letra (e use o Corretor) antes de salvar');
 };
+// janelinha com campo de texto, no lugar do prompt() (que o Electron não aceita). Devolve o texto ou null.
+function perguntar(titulo, texto, valor = '', link = null) {
+  return new Promise(resolve => {
+    const d = $('dlgPergunta'), inp = $('pgValor');
+    $('pgTitulo').textContent = titulo; $('pgTexto').textContent = texto;
+    $('pgLinkP').hidden = !link;
+    if (link) { $('pgLink').textContent = link.texto; $('pgLink').onclick = e => { e.preventDefault(); api.abrirLink(link.url); }; }
+    inp.value = valor;
+    let resposta = null;
+    $('formPergunta').onsubmit = () => { resposta = inp.value; };
+    $('pgCancelar').onclick = () => d.close();
+    d.addEventListener('close', () => resolve(resposta), { once: true });
+    d.showModal(); inp.focus(); inp.select();
+  });
+}
 $('inChave').onclick = async e => {
   e.preventDefault();
   const atual = await api.temChaveVagalume();
-  const k = prompt('Chave da API do Vagalume (gratuita).\n\nComo conseguir: crie uma conta em vagalume.com.br, abra a área de desenvolvedores/API e gere uma chave. Cole aqui:' + (atual ? '\n\n(deixe vazio para desligar)' : ''), '');
+  const k = await perguntar('Ligar o Vagalume',
+    'Cole aqui a chave da API do Vagalume (é gratuita).\nComo conseguir: entre no site do Vagalume com sua conta, abra a área de API e gere uma chave.' +
+    (atual ? '\n\nDeixe vazio e clique OK para desligar.' : ''), '',
+    { texto: 'Abrir a página de chaves do Vagalume', url: 'https://auth.vagalume.com.br/settings/api/' });
   if (k === null) return;
   const ligado = await api.chaveVagalume(k);
   $('inChave').textContent = ligado ? 'Vagalume ligado ✔' : 'Ligar Vagalume (mais letras gospel)';
@@ -678,7 +696,7 @@ $('bbImportar').onclick = async () => {
   $('dlgBiblias').close();
   const r = await api.importarBiblia();
   if (!r.ok) { if (r.erro) alert('Não consegui ler este arquivo:\n' + r.erro); return; }
-  const nome = prompt('Nome desta versão (ex.: ARC, ACF, NVI):', r.nome);
+  const nome = await perguntar('Nome da Bíblia', 'Nome desta versão (ex.: ARC, ACF, NVI):', r.nome);
   if (nome && nome.trim() && nome.trim() !== r.nome) await api.renomearBiblia(r.id, nome.trim());
   await carregarBiblias(r.id);
   toast(`Bíblia instalada: ${r.total.toLocaleString('pt-BR')} versículos`);
