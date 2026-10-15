@@ -1611,14 +1611,14 @@ api.onAtualizacao(e => {
 $('atuVerificar').onclick = async () => { mostrarAtualizacao(Object.assign({}, atu, { fase: 'verificando' })); mostrarAtualizacao(await api.verificarAtualizacao()); };
 $('btnAtualizar').onclick = async () => {
   if (!confirm(`Atualizar para a versão ${atu.versaoNova}?\n\nO programa vai fechar, instalar a nova versão e abrir de novo sozinho (leva uns 30 segundos).\nSeus dados (letras, membros, avisos...) continuam.`)) return;
-  if (!(await api.instalarAtualizacao())) toast('Não consegui iniciar a atualização. Tente “Procurar atualização” no Backup.');
+  if (!(await api.instalarAtualizacao())) toast('O instalador baixado estava com defeito. Estou baixando de novo; o botão volta quando terminar.');
 };
 api.onAtualizacaoFeita(r => {
   if (r.ok) toast(`Programa atualizado para a versão ${r.atual} ✓`);
   else if (confirm(`A atualização automática para a versão ${r.para} não foi instalada (continua na ${r.atual}).\n\n` +
     `Quer abrir o instalador agora? É só clicar em Avançar/Instalar; o programa fecha e os seus dados continuam.\n\n` +
     (r.log ? 'Detalhes (atualizacao.log em Documentos\\ProjecaoADMadureira):\n' + r.log : ''))) {
-    api.instalarAtualizacaoManual().then(ok => { if (!ok) alert('Não encontrei o instalador baixado. Clique em Backup > Procurar atualização, ou baixe em Releases no GitHub.'); });
+    api.instalarAtualizacaoManual().then(ok => { if (!ok) alert('O instalador baixado sumiu ou estava com defeito. Estou baixando de novo; espere o botão dourado voltar. Se preferir, baixe em Releases no GitHub.'); });
   }
 });
 api.estadoAtualizacao().then(e => { mostrarAtualizacao(e); if (e && e.versaoAtual) $('versaoApp').textContent = 'v' + e.versaoAtual; }).catch(() => {});

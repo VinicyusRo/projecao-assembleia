@@ -1167,6 +1167,7 @@ function iniciarAtualizador() {
 ipcMain.handle('atualizar:manual', () => {
   const arquivo = (ultimaTentativa && ultimaTentativa.arquivo) || (atualizador && atualizador.estado && atualizador.estado.arquivo);
   if (!arquivo || !fs.existsSync(arquivo)) return false;
+  if (atualizador && !atualizador.conferir(arquivo)) return false;   // instalador com defeito: baixa de novo
   shell.openPath(arquivo);
   setTimeout(() => { if (projWin && !projWin.isDestroyed()) projWin.destroy(); app.exit(0); }, 1500);
   return true;
